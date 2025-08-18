@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* --- SZE tokenek (Tailwind v4 @theme) --- */
+@theme {
+  --color-sze-primary:   #242943;
+  --color-sze-secondary: #50ADC9;
+  --color-sze-third:     #D9D9D9;
+
+  --color-sze-esk:  #AC112B;
+  --color-sze-kgyk: #357ABE;
+  --color-sze-akmk: #BD67C1;
+  --color-sze-dfk:  #EEC344;
+  --color-sze-muk:  #7756A6;
+  --color-sze-ak:   #2A8C48;
+  --color-sze-givk: #1AC038;
+  --color-sze-eekk: #AE791D;
+  --color-sze-ahjk: #7B72AC;
+  --color-sze-pink: #E75480;
+
+  /* állapot-színek */
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger:  #dc2626;
+
+  /* betűk */
+  --font-sze-heading: "Montserrat", sans-serif;
+  --font-sze-body: "Roboto", sans-serif;
+}
+
+@layer base {
+  body { @apply bg-white text-black font-sze-body; }
+}
+
+@layer components {
+  /* Gyökér + címke alap */
+  .sze-floatlabel { @apply relative; }
+
+  .sze-floatlabel > .sze-floatlabel-label {
+    @apply absolute left-3 top-1/2 -translate-y-1/2
+           pointer-events-none text-black/50 bg-transparent
+           transition-all duration-150 px-1;
+  }
+
+  /* FÓKUSZ vagy KITÖLTÖTT állapotnál „felúszik” a label */
+  .sze-floatlabel:has(input:focus) > .sze-floatlabel-label,
+  .sze-floatlabel:has(textarea:focus) > .sze-floatlabel-label,
+  .sze-floatlabel:has(select:focus) > .sze-floatlabel-label,
+  /* PrimeReact által hozzáadott osztályok (kitöltött / fókuszos állapot) */
+  .sze-floatlabel:has(.p-filled) > .sze-floatlabel-label,
+  .sze-floatlabel:has(.p-inputwrapper-filled) > .sze-floatlabel-label,
+  .sze-floatlabel:has(.p-inputwrapper-focus) > .sze-floatlabel-label,
+  /* Ha van placeholder és nem üres a mező */
+  .sze-floatlabel:has(input:not(:placeholder-shown)) > .sze-floatlabel-label,
+  .sze-floatlabel:has(textarea:not(:placeholder-shown)) > .sze-floatlabel-label {
+    @apply text-xs -top-2 translate-y-0 text-sze-primary bg-white;
+  }
+}
+
+@layer components {
+  .sze-iconfield { @apply relative inline-block; }
+  .sze-iconfield .sze-inputicon        { @apply absolute top-1/2 -translate-y-1/2 text-black/60; }
+  .sze-iconfield .sze-inputicon-left    { @apply left-3; }
+  .sze-iconfield .sze-inputicon-right   { @apply right-3; }
+
+  /* több hely a placeholdernek az ikon előtt/után (kb. 2.5rem = 40px) */
+  .sze-iconfield:has(.sze-inputicon-left)  input,
+  .sze-iconfield:has(.sze-inputicon-left)  textarea { padding-left: 2.5rem; }
+
+  .sze-iconfield:has(.sze-inputicon-right) input,
+  .sze-iconfield:has(.sze-inputicon-right) textarea { padding-right: 2.5rem; }
+}
+
+@layer components {
+  .sze-inputgroup { @apply inline-flex items-stretch; }
+  .sze-inputgroup > *:not(:first-child) { @apply -ml-px; }
+}
+
+@layer components {
+  /* InputNumber gombok vonala ne vastagodjon az input mellett */
+  .p-inputnumber .p-inputnumber-button { @apply leading-none; }
+}
