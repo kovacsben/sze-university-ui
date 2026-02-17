@@ -1,5 +1,7 @@
 import React from "react";
-import { SplitButton ,Button, ButtonGroup, IconButton, InputText, Dropdown, AutoComplete, Checkbox, Dialog, Calendar, Editor, FloatLabel, IconField, InputIcon, InputGroup, InputGroupAddon, InputNumber, InputSwitch, InputOtp, KeyFilteredInput, Knob } from "./sze-ui";
+import { SplitButton ,Button, ButtonGroup, IconButton, InputText, Dropdown, AutoComplete, Checkbox, Dialog, Calendar, Editor, FloatLabel, IconField, InputIcon, InputGroup, InputGroupAddon,
+   InputNumber, InputSwitch, InputOtp, KeyFilteredInput, Knob, Listbox, Mention, MultiSelect, MultiStateCheckbox, Password,
+  RadioButton, Rating, SelectButton, Slider, TreeSelect, TriStateCheckbox, ToggleButton } from "./sze-ui";
 
 
 export default function App() {
@@ -12,6 +14,12 @@ export default function App() {
   const [num, setNum] = React.useState(10);
   const [sw, setSw] = React.useState(false);
   const [otp, setOtp] = React.useState("");
+  const [RB, setRB] = React.useState("a");
+  const [rating, setRating] = React.useState(3);
+  const [range1, setRange1] = React.useState(30);
+  const [toggle, setToggle] = React.useState(false);
+
+  const options = [{name:"Győr"},{name:"Pécs"},{name:"Budapest"}];
 
 
   const cities = [
@@ -30,10 +38,20 @@ export default function App() {
 
   return (
     <div className="p-8 space-y-8">
-    <h1 className="text-5xl font-sze-heading font-bold text-sze-primary">SZE UI – PrimeReact + Tailwind</h1>
+    <h1>SZE UI – PrimeReact + Tailwind</h1>
+    <h2>SZE UI – PrimeReact + Tailwind</h2>
+    <h3>SZE UI – PrimeReact + Tailwind</h3>
+    <h4>SZE UI – PrimeReact + Tailwind</h4>
+    <h5>SZE UI – PrimeReact + Tailwind</h5>
+    <h6>SZE UI – PrimeReact + Tailwind</h6>
 
       <section className="space-y-3">
+        <div className="flex items-center h-20 bg-gray-100">
+            <Button label="Kattints a továbbjutáshoz!"/>
+          </div>
         <div className="flex flex-wrap gap-3">
+          
+          <Button label="Kattints a továbbjutáshoz!"/>
           <Button label="Primary" />
           <Button label="Secondary" variant="secondary" />
           <Button label="Outline" variant="outline" />
@@ -41,7 +59,7 @@ export default function App() {
           <Button label="Link" variant="link" />
           <Button label="Success" severity="success" />
           <Button label="Warning" severity="warning" />
-          <Button label="Danger" severity="danger" />
+          <Button label="Danger" severity="danger" onClick={() => window.open("https://www.youtube.com", "_blank")} />
           <IconButton icon="pi pi-ellipsis-h" text aria-label="More" />
         </div>
         <ButtonGroup>
@@ -62,10 +80,14 @@ export default function App() {
 
       <section className="space-y-3">
         <Button label="Dialog" onClick={()=>setVisible(true)} />
-        <Dialog header="Példa dialog" visible={visible} style={{ width: "30rem" }} onHide={()=>setVisible(false)}
-          footer={<div className="flex justify-end gap-2"><Button label="Mégse" outlined onClick={()=>setVisible(false)} /><Button label="OK" onClick={()=>setVisible(false)} /></div>}>
-          <p className="m-0">Itt a tartalom.</p>
+          
+        <Dialog header="Biztosan kilépsz a főmenübe?" visible={visible} style={{ width: "30rem" }} onHide={()=>setVisible(false)}
+          footer={<div className="flex justify-end gap-2">
+            <Button label="Mégse" outlined onClick={()=>setVisible(false)}/>
+            <Button label="OK" onClick={()=>setVisible(false)} /></div>}>
+          <p className="">Itt a tartalom.</p>
         </Dialog>
+        
       </section>
 
 
@@ -92,7 +114,7 @@ export default function App() {
               onChange={(e) => setDate(e.value)}
               showIcon
               placeholder="Válassz dátumot"
-              className="w-64"
+              className="w-72"
             />
       </div>
 
@@ -217,6 +239,22 @@ export default function App() {
       </div>
 
       <Knob value={num} onChange={(e)=>setNum(e.value)} min={0} max={100} />
+    </div>
+
+    <div className="p-6 space-y-6">
+      <MultiSelect options={options} optionLabel="name" placeholder="Városok" className="w-72" />
+
+      <div className="flex items-center gap-4">
+        <RadioButton inputId="a" name="g" value="a" onChange={(e)=>setRB(e.value)} checked={RB==="a"} />
+        <RadioButton inputId="b" name="g" value="b" onChange={(e)=>setRB(e.value)} checked={RB==="b"} />
+        <ToggleButton checked={toggle} onChange={(e)=>setToggle(e.value)} onLabel="Be" offLabel="Ki" />
+      </div>
+
+      <Password feedback />
+      <Rating value={rating} onChange={(e)=>setRating(e.value)} cancel={false} />
+      <SelectButton options={["Nappali","Éjjeli"]} />
+
+      <Slider value={range} onChange={(e)=>setRange(e.value)} className="w-64" />
     </div>
 
 

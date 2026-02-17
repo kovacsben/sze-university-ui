@@ -1,8 +1,9 @@
+
 import { classNames } from "primereact/utils";
 
 export const calendarPT = {
   /* A teljes mező konténer */
-  root: { className: "relative inline-flex w-auto" },
+  root: { className: "relative inline-flex w-auto " },
 
   /* A beviteli mező */
   input: {
@@ -22,11 +23,11 @@ export const calendarPT = {
   },
 
   /* Az előugró panel (naptár) */
-  panel: { className: "mt-2 rounded-2xl border bg-white p-3 shadow-xl z-50" },
+  panel: { className: "m-auto  rounded-2xl border bg-white p-auto shadow-xl z-50 w-2xs" },
 
   /* Fejléc (hónap/év + navigáció) */
   header: { className: "flex items-center justify-between mb-2" },
-  title:  { className: "text-sze-primary font-semibold" },
+  title:  { className: "text-sze-primary font-semibold " },
   previousButton: {
     className:
       "rounded-xl h-8 w-8 flex items-center justify-center hover:bg-sze-primary/10 text-sze-primary",
@@ -37,11 +38,11 @@ export const calendarPT = {
   },
 
   /* Hétfejlécek */
-  weekHeader: { className: "grid grid-cols-7 gap-1 px-1 text-[11px] uppercase text-black/50 mb-1" },
-  weekday: { className: "text-center" },
+  weekHeader: { className: "grid grid-cols-7 gap-8 px-1 text-[11px] uppercase text-black/50 mb-1 justify-center" },
+  weekday: { className: "text-center justify-around w-2xs" },
 
   /* Napok rácsa */
-  dayView: { className: "grid grid-cols-7 gap-1" },
+  dayView: { className: "grid grid-cols-7 gap-3 justify-center p-1" },
 
   /* Egy nap cella – állapotfüggő osztályok a context alapján */
   day: ({ context }) => ({

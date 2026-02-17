@@ -1,14 +1,11 @@
+// src/sze-ui/components/Calendar/Calendar.jsx
 import { Calendar as PCalendar } from "primereact/calendar";
 
-/**
- * SZE Calendar wrapper
- * - fullWidth: boolean -> w-full az inputra
- * - a többi prop megy változatlanul a PrimeReact Calendernek
- */
-export default function Calendar({ fullWidth, className, ...props }) {
+export default function Calendar({ fullWidth, className, appendTo = "self", ...props }) {
   return (
     <PCalendar
       {...props}
+      appendTo={appendTo}
       className={(fullWidth ? "w-full " : "") + (className || "")}
     />
   );
