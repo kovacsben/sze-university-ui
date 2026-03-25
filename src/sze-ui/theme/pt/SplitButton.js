@@ -3,7 +3,7 @@ import { classNames } from "primereact/utils";
 function variantClasses(props, { left = false, right = false } = {}) {
   // közös alap
   const base = [
-    "inline-flex items-center justify-center font-medium transition",
+    "inline-flex items-center justify-center font-medium transition ",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sze-secondary",
     "focus-visible:ring-offset-2 ring-offset-white dark:ring-offset-neutral-900",
     "disabled:opacity-60 disabled:pointer-events-none",
@@ -89,12 +89,12 @@ export const splitButtonPT = {
   menuButtonIcon: { className: "pi pi-chevron-down text-current" },
 
   // overlay panel (jobbra igazítva)
-  menu: { className: "absolute z-50 mt-1 right-0 rounded-xl border bg-white p-1 shadow-lg" },
+  menu: { className: "absolute z-50 mt-2 right-0 rounded-xl border bg-sze-secondary-50 p-1 shadow-lg" },
 
   // menüelemek
   menuitem: ({ context }) => ({
     className: classNames(
-      "px-3 py-2 rounded-lg cursor-pointer text-sze-primary",
+      "px-3 py-2 rounded-lg cursor-pointer text-sze-primary bg-sze-secondary-50",
       context.focused && "bg-sze-primary/10",
       context.active && "bg-sze-primary/20"
     ),

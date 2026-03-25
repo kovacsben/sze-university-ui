@@ -3,11 +3,11 @@ export const passwordPT = {
 
   input: {
     className:
-      "w-full h-10 rounded-2xl border border-black/15 px-3 outline-none " +
-      "focus-visible:ring-2 focus-visible:ring-sze-secondary",
+      "w-full h-10 rounded-2xl border border-black/15 px-3 outline-none text-medium" +
+      "focus-visible:ring-1 ",
   },
 
-  panel: { className: "mt-2 rounded-xl border bg-white p-3 shadow-lg" },
+  panel: { className: "mt-2 rounded-xl border bg-white p-3 shadow-lg text-sm" },
 
   // Állapotfüggetlen méter – a szélességet/állapotot a PR kezeli
   meter: { className: "h-2 rounded-full bg-black/10 overflow-hidden" },
