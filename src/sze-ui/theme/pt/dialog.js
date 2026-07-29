@@ -1,3 +1,5 @@
+import { RADIUS, SHADOW } from "../tokens";
+
 export const dialogPT = {
   // Teljes képernyős maszk: halvány sötétítés + enyhe háttérelmosás
   // Ez a réteg fedi le az egész képernyőt, középre igazítja a dialógust, sötétíti és elmosja a hátteret.
@@ -8,9 +10,12 @@ export const dialogPT = {
   },
 
   // A dialógus doboz: fehér háttér, árnyék, színes keret, lekerekített sarkok, maximális szélesség.
-  content: {
-    className:
-      "bg-white text-black shadow-xl ring-1 ring-sze-primary ring-black/10 px-8 py-6 rounded-3xl w-full max-w-xl",
+  content: ({ props }) => {
+    const radiusCls = RADIUS[props.radius] ?? RADIUS["3xl"];
+    return {
+      className:
+        `bg-white text-black ${SHADOW.xl} ring-1 ring-sze-primary ring-black/10 px-8 py-6 ${radiusCls} w-full max-w-xl`,
+    };
   },
 
   // Fejléc: vízszintesen rendezett elemek (X gomb balra, cím mellette), alsó szegéllyel.
@@ -22,7 +27,7 @@ export const dialogPT = {
   title:  { className: "ml-auto text-lg font-semibold text-sze-primary" },
 
   // Bezáró X gomb: bal oldalon, lekerekített, hover effekt.
-  closeButton: { className: "order-1 rounded-full p-2 hover:bg-sze-primary/10" },
+  closeButton: { className: `order-1 ${RADIUS.full} p-2 hover:bg-sze-primary/10` },
 
   // Lábléc: felső szegéllyel, függőleges padding.
   footer: { className: "py-2 border-t border-black/10" },

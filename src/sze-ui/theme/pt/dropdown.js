@@ -1,42 +1,68 @@
 import { classNames } from "primereact/utils";
+import { RADIUS, SHADOW, DURATION, controlSize } from "../tokens";
 
 export const dropdownPT = {
-  
-  root: {
-    className:
-      "relative inline-flex h-10 items-center rounded-3xl border border-black/15 " +
-      "bg-white pl-3 pr-10 " + 
-      "focus-within:outline-none focus-within:ring-2 focus-within:ring-sze-secondary " +
-      "focus-within:ring-offset-2 ring-offset-white dark:ring-offset-neutral-900",
+  root: ({ props }) => {
+    // Alapértelmezett magasság h-11 (a Dropdown saját, szándékosan magasabb defaultja),
+    // de a size prop-pal felülírható a közös CONTROL_SIZE skálára.
+    const heightCls = props.size ? controlSize(props.size).height : "h-11";
+    const radiusCls = RADIUS[props.radius] ?? RADIUS.xl;
+    return {
+      className: classNames(
+        `relative inline-flex ${heightCls} items-center ${radiusCls} border border-black/10`,
+        `bg-white pl-4 pr-10 transition-all ${DURATION.normal}`,
+        "hover:border-sze-primary/50 cursor-pointer", // Hoverre bevillan az egyetemi szín
+        "focus-within:outline-none focus-within:ring-2 focus-within:ring-sze-secondary focus-within:ring-offset-2"
+      ),
+    };
   },
 
-  
-  input: { className: "flex-1 min-w-0 truncate" },
+  input: {
+    className: "flex-1 min-w-0 truncate text-gray-700 font-medium"
+  },
 
-  
   trigger: {
-    className:
-      "absolute right-2 top-1/2 -translate-y-1/2 " + 
-      "h-7 w-7 rounded-lg flex items-center justify-center " +
-      "text-sze-primary hover:bg-sze-primary/10 transition",
+    className: classNames(
+      "absolute right-2 top-1/2 -translate-y-1/2",
+      `h-8 w-8 ${RADIUS.lg} flex items-center justify-center`,
+      "text-sze-primary hover:bg-sze-primary/10 transition-colors"
+    ),
   },
 
-  
-  panel: { className: "mt-1 rounded-xl border bg-white p-1 shadow-lg" },
+  // --- ITT A FIX A HÁTTÉRRE ---
+  panel: {
+    className: classNames(
+      `mt-2 ${RADIUS.xl} border border-gray-100 ${SHADOW["2xl"]}`, // Erősebb árnyék, hogy elváljon a háttértől
+      "bg-white outline-none z-50", // Explicit FEHÉR háttér és magas z-index
+      "overflow-hidden" // Hogy az itemek ne lógjanak ki a lekerekítésnél
+    )
+  },
+
+  list: {
+    className: "py-2" // Egy kis belső padding a listának
+  },
 
   item: ({ context }) => ({
     className: classNames(
-      "px-3 py-2 rounded-lg cursor-pointer",
-      context.focused && "bg-sze-primary/10",
-      context.selected && "bg-sze-primary/20"
+      `px-4 py-3 cursor-pointer transition-all ${DURATION.fast}`,
+      "text-gray-700 flex items-center gap-2",
+      
+      // Hover állapot (fókuszált)
+      context.focused && !context.selected && "bg-gray-50 text-sze-primary",
+      
+      // Kijelölt állapot
+      context.selected && "bg-sze-primary text-white font-semibold",
+      
+      // Ha kijelölt ÉS fókuszált (pl. nyilakkal mész rá)
+      context.selected && context.focused && "bg-sze-primary/90"
     ),
   }),
 
-  emptyMessage: { className: "px-3 py-2 text-black/60" },
+  emptyMessage: { 
+    className: "px-4 py-3 text-gray-400 italic text-sm bg-white" 
+  },
 
-  
   clearIcon: {
-    className:
-      "absolute right-10 top-1/2 -translate-y-1/2 text-black/50 hover:text-black",
+    className: "absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors",
   },
 };

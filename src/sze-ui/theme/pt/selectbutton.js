@@ -1,34 +1,30 @@
 import { classNames } from "primereact/utils";
+import { RADIUS } from "../tokens";
+
 export const selectButtonPT = {
-  // Külső konténer: téglalap, világoskék keret, overflow hidden
-  root: { className: "inline-flex items-stretch rounded-lg overflow-hidden border-2 border-sze-primary" },
-  button: ({ context }) => ({ 
+  // Külső konténer: a gombok saját háttérszíne rajzolja ki a formát, a
+  // konténernek csak a lekerekítést/vágást kell biztosítania.
+  root: { className: `inline-flex items-stretch ${RADIUS.lg} overflow-hidden` },
+  button: ({ context }) => ({
     className: classNames(
-      // Alap stílus: fix magasság, középigazítás, átmenet
-      "px-6 h-10 text-base font-semibold transition-all",
-      // Kiválasztott: világoskék háttér, fehér szöveg, világoskék keret
-      context.selected
-        ? "bg-sze-primary text-white border-sze-primary z-10"
-        // Nem kiválasztott: fehér háttér, szürke szöveg, nincs háttér
-        : "bg-white text-sze-primary border-transparent",
+      // Alap stílus: fix magasság, középigazítás, animált szín-átmenet
+      "px-6 h-10 flex items-center text-base font-semibold text-white transition-colors duration-300 ease-in-out",
+      // Kiválasztott: sze-primary háttér — ide "úszik át" a kitöltés kattintáskor
+      // Nem kiválasztott: sze-third (világosszürke) háttér
+      context.selected ? "bg-sze-primary" : "bg-sze-third text-sze-primary hover:bg-sze-primary/50",
       // Első és utolsó gomb lekerekítése
-      "first:rounded-l-lg last:rounded-r-lg",
-      // Gombok között nincs margó, nincs átfedés
-      "border-r last:border-r-0"
+      "first:rounded-l-lg last:rounded-r-lg"
     ),
   }),
 };
+
 export const selectButtonPTDark = {
   ...selectButtonPT,
-  root: { className: "inline-flex items-stretch rounded-lg overflow-hidden border-2 border-sze-primary/80" },
   button: ({ context }) => ({
     className: classNames(
-      "px-6 h-10 text-base font-semibold transition-all",
-      context.selected
-        ? "bg-sze-primary text-white border-sze-primary/80 z-10"
-        : "bg-black text-sze-primary border-transparent",
-      "first:rounded-l-lg last:rounded-r-lg",
-      "border-r last:border-r-0"
+      "px-6 h-10 flex items-center text-base font-semibold transition-colors duration-300 ease-in-out",
+      context.selected ? "bg-sze-primary text-white" : "bg-sze-third/40 text-sze-primary hover:bg-sze-third/60",
+      "first:rounded-l-lg last:rounded-r-lg"
     ),
   }),
 };

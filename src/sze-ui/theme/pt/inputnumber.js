@@ -1,12 +1,16 @@
 import { classNames } from "primereact/utils";
+import { RADIUS, controlSize } from "../tokens";
 
 export const inputNumberPT = {
-  root: { className: "inline-flex items-stretch rounded-2xl border border-black/15 bg-white" },
+  root: { className: `inline-flex items-stretch ${RADIUS["2xl"]} border border-black/15 bg-white` },
 
-  input: {
-    className:
-      "h-10 px-3 rounded-l-2xl outline-none bg-transparent " +
-      "focus-visible:ring-2 focus-visible:ring-sze-secondary",
+  input: ({ props }) => {
+    const cs = controlSize(props.size);
+    return {
+      className:
+        `${cs.height} px-3 rounded-l-2xl outline-none bg-transparent ` +
+        "focus-visible:ring-2 focus-visible:ring-sze-secondary",
+    };
   },
 
   // jobb oldali +/– gombok (showButtons esetén)

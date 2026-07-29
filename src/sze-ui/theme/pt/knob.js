@@ -1,3 +1,5 @@
 export const knobPT = {
-  root: { className: "text-sze-primary" }, // a value színét a propok állítják
+  root: { 
+    className: "text-sze-primary flex items-center justify-center p-4 bg",
+  },
 };

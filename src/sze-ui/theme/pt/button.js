@@ -1,5 +1,6 @@
 // PrimeReact utils-ból a classNames helper importálása (ternary és klasszikus megadásokat kombinál)
 import { classNames } from "primereact/utils";
+import { RADIUS, SHADOW, controlSize } from "../tokens";
 
 
 /**
@@ -30,8 +31,11 @@ export const buttonPT = {
     /**
      * Alapstílusok - minden gombra érvényesülnek
      */
+    // radius prop-pal élőben felülírható, alapértelmezetten a pill-forma (3xl)
+    const radiusCls = RADIUS[props.radius] ?? RADIUS["3xl"];
+
     const base1 = [
-      "inline-flex items-center justify-center gap-2 rounded-3xl font-medium transition",
+      `flex justify-center items-center  ${radiusCls} ${SHADOW.sm} inline-flex gap-2 font-medium transition`,
       // Focus state: körülbelül 2px kék gyűrű
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sze-secondary",
       // Disabled state: 60% átlátszóság, nincsenek kattintások
@@ -41,15 +45,13 @@ export const buttonPT = {
     ];
 
     /**
-     * Méretváltozatok
+     * Méretváltozatok - a központi CONTROL_SIZE tokenből (src/sze-ui/theme/tokens.js)
      * - small: h-9 (36px magasság), px-3 (12px oldal padding), text-sm
      * - normal: h-10 (40px magasság), px-4 (16px oldal padding), text-sm
      * - large: h-11 (44px magasság), px-5 (20px oldal padding), text-base
      */
-    const sizeCls =
-      props.size === "small" ? "h-9 px-3 text-sm"
-    : props.size === "large" ? "h-11 px-5 text-base"
-    : "h-10 px-4 text-sm"; // normal (default)
+    const cs = controlSize(props.size);
+    const sizeCls = `${cs.height} ${cs.padding} ${cs.text}`;
 
     /**
      * Variant-logika: meghatározza a gomb kinézetét
@@ -116,7 +118,7 @@ export const buttonPT = {
       : props.severity === "success"   ? "border border-success text-success hover:bg-success/10 hover:-translate-y-0.5"
       : props.severity === "warning"   ? "border border-warning text-warning hover:bg-warning/80 hover:-translate-y-0.5"
       : props.severity === "danger"    ? "border border-danger text-danger hover:bg-danger/10 hover:-translate-y-0.5"
-                                       : "border border-sze-primary text-sze-primary hover:bg-sze-primary hover:text-white hover:-translate-y-0.5 shadow-sm hover:"
+                                       : `border border-sze-primary text-sze-primary hover:bg-sze-primary hover:text-white hover:-translate-y-0.5 ${SHADOW.sm} hover:`
       );
     } 
     /**
@@ -154,7 +156,23 @@ export const buttonPT = {
    * label: a gomb szövegének stílusa
    * - truncate: túl hosszú szöveg esetén "..." pontokkal csonkított
    */
-  label: { className: "truncate" },
+  // Make the label a flex container so its contents (text/icon) align
+  // vertically with the icon span rendered by PrimeReact.
+  // Removed `truncate` per request — no text truncation needed.
+  //
+  // PrimeReact mindig renderel egy <span> label elemet akkor is, ha
+  // nincs label (üres &nbsp;-t tesz bele), ha nincs props.children sem.
+  // Ez az üres span flex-item-ként foglal helyet a gombban, ezért az
+  // ikon soha nem lesz pontosan középen (csak ikonos gomboknál). Mivel
+  // a span generálása magában a PrimeReact Button komponensben van
+  // hardkódolva, PT-ből nem tudjuk megakadályozni a létrehozását - de
+  // `hidden`-nel kivehetjük a layout-ból, ha nincs valódi szöveg/gyerek.
+  label: ({ props }) => ({
+    className: classNames(
+      "flex items-center",
+      !props.label && !props.children && "hidden"
+    ),
+  }),
 
   /**
    * icon: az ikon stílusa
@@ -162,7 +180,7 @@ export const buttonPT = {
    * - Ha jobbra van az ikon (iconPos === "right"): order-2 (jobbra kerül), ml-2 (bal margó)
    * - Ha balra (default): mr-2 (jobb margó)
    */
-  icon: ({ props }) => ({ className: classNames("items-center ml-2") }),
+  icon: ({ props }) => ({ className: classNames(" flex items-center justify-center") }),
 
   /**
    * loadingIcon: a loading spinner stílusa

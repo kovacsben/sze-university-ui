@@ -24,11 +24,15 @@ export default function Button({ variant, fullWidth, className, ...props }) {
   if (variant === "text")      mapped.text = true;            // Csak szöveg, nincs háttér
   if (variant === "link")      mapped.link = true;            // Link-szerű megjelenés (aláhúzott)
 
-  // Visszatérési érték: a PrimeReact Button renderelésével
-  // - {...mapped} - a variant prop-okat alkalmazzuk
-  // - {...props} - az összes egyéb prop (label, onClick, icon, stb.) továbbadódik
-  // - className - kombinálunk:
-  //   * fullWidth ? "w-full " : "" → teljes szélességű (ha kell)
-  //   * + (className || "") → felhasználó által megadott CSS osztályok
-  return <PButton {...mapped} {...props} className={(fullWidth ? "w-full " : "") + (className || "")} />;
+  // Ha van ikon, de nincs label (vagy üres), akkor ikon-only gombként kezeljük
+  const { label, icon, ...rest } = props;
+  const isIconOnly = !!icon && (label === undefined || label === null || label === "");
+
+  // Végső prop-ok: ha ikon-only, adunk label={null}, különben továbbadjuk a labelt
+  const finalProps = { ...rest, icon, ...(isIconOnly ? { label: null } : { label }) };
+
+  // className kombinálása
+  const baseClass = (fullWidth ? "w-full " : "") + "flex items-center justify-center text-center " + (className || "");
+
+  return <PButton {...mapped} {...finalProps} className={baseClass} />;
 }

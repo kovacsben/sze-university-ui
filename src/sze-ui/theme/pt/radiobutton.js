@@ -1,4 +1,5 @@
 import { classNames } from "primereact/utils";
+import { RADIUS } from "../tokens";
 
 export const radioButtonPT = {
   root: ({ props }) => ({
@@ -13,7 +14,7 @@ export const radioButtonPT = {
     const isChecked = props.checked ?? context?.checked;
     return {
       className: classNames(
-        "w-5 h-5 rounded-full border flex items-center justify-center transition",
+        `w-5 h-5 ${RADIUS.full} border flex items-center justify-center transition`,
         isChecked ? "border-sze-primary" : "border-black/25"
       ),
     };
@@ -23,7 +24,7 @@ export const radioButtonPT = {
     const isChecked = props.checked ?? context?.checked;
     return {
       className: classNames(
-        "w-2.5 h-2.5 rounded-full",
+        `w-2.5 h-2.5 ${RADIUS.full}`,
         isChecked ? "bg-sze-primary" : "bg-transparent"
       ),
     };

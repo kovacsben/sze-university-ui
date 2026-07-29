@@ -1,6 +1,7 @@
 import React from "react";
 import TailwindDemo from "./TailwindDemo";
-import { SplitButton, Button, ButtonGroup, IconButton, InputText, Dropdown, AutoComplete, Checkbox, Dialog, Calendar, Editor, FloatLabel, IconField, InputIcon, InputGroup, InputGroupAddon, InputNumber, InputSwitch, InputOtp, KeyFilteredInput, Knob, Listbox, Mention, MultiSelect, MultiStateCheckbox, Password, RadioButton, Rating, SelectButton, Slider, TreeSelect, TriStateCheckbox, ToggleButton } from "./sze-ui";
+import Playground from "./components/Playground";
+import { Accordian, Avatar, Breadcrumb, Card, Chip, ConfirmDialog, ConfirmPopUp, Divider, FieldSet, Gallery, Inplace, Menu, Megamenu, Menubar, Message, Messages, Paginator, Panel, ProgressBar, ProgressSpinner, ScrollPanel, Sidebar, Skeleton, Stepper, Steps, TabMenu, TieredMenu, Timeline, TimePicker, Toast, Toolbar, Tooltip, Tree, SplitButton, Button, ButtonGroup, IconButton, InputText, Dropdown, AutoComplete, Checkbox, Dialog, Calendar, Editor, FloatLabel, IconField, InputIcon, InputGroup, InputGroupAddon, InputNumber, InputSwitch, InputOtp, KeyFilteredInput, Knob, Listbox, Mention, MultiSelect, MultiStateCheckbox, Password, RadioButton, Rating, SelectButton, Slider, TreeSelect, TriStateCheckbox, ToggleButton } from "./sze-ui";
 
 export default function App() {
   // ===== STATE MANAGEMENT =====
@@ -17,7 +18,32 @@ export default function App() {
   const [rating, setRating] = React.useState(3);
   const [range1, setRange1] = React.useState(30);
   const [toggle, setToggle] = React.useState(false);
+  const [dayNight, setDayNight] = React.useState("Nappali");
   const [activeTab, setActiveTab] = React.useState("buttons");
+  const [sidebarVisible, setSidebarVisible] = React.useState(false);
+  const [paginatorFirst, setPaginatorFirst] = React.useState(0);
+  const [expandedKeys, setExpandedKeys] = React.useState({});
+  const [progressValue, setProgressValue] = React.useState(45);
+  const [selectedTime, setSelectedTime] = React.useState(null);
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStepIndex, setActiveStepIndex] = React.useState(0);
+  const [activeTabMenu, setActiveTabMenu] = React.useState(0);
+  const [treeSelectedKeys, setTreeSelectedKeys] = React.useState(null);
+  const [chips, setChips] = React.useState([
+    { id: 1, label: "React", severity: "primary" },
+    { id: 2, label: "JavaScript", severity: "secondary" },
+    { id: 3, label: "Tailwind", severity: "success" },
+    { id: 4, label: "PrimeReact", severity: "warning" }
+  ]);
+  const [confirmInfoVisible, setConfirmInfoVisible] = React.useState(false);
+  const [confirmWarningVisible, setConfirmWarningVisible] = React.useState(false);
+  const [confirmDangerVisible, setConfirmDangerVisible] = React.useState(false);
+  const [popupInfoVisible, setPopupInfoVisible] = React.useState(false);
+  const [popupWarningVisible, setPopupWarningVisible] = React.useState(false);
+  const [popupSuccessVisible, setPopupSuccessVisible] = React.useState(false);
+  const [inplaceValue, setInplaceValue] = React.useState("Széchenyi István Egyetem");
+  const [inplaceDescription, setInplaceDescription] = React.useState("Győr, Magyarország");
+  const [messages, setMessages] = React.useState([]);
 
   // ===== DATA =====
   const options = [{name:"Győr"},{name:"Pécs"},{name:"Budapest"}];
@@ -33,15 +59,33 @@ export default function App() {
     { label: "Törlés",      icon: "pi pi-trash", command: () => console.log("delete") },
   ];
 
-  // ===== COMPONENT WRAPPERS =====
-  const ComponentCard = ({ title, description, children }) => (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition">
-      <h3 className="font-semibold text-lg text-sze-primary mb-1">{title}</h3>
-      <p className="text-sm text-gray-600 mb-4">{description}</p>
-      <div className="space-y-3">{children}</div>
-    </div>
-  );
+  const accordianItems = [
+    {
+      header: "🎓 Széchenyi István Egyetem Bemutatása",
+      content: "A Széchenyi István Egyetem (SZE) Magyarország egyik vezető felsőoktatási intézménye. Az egyetem modern képzéseket és kutatási lehetőségeket kínál a hallgatók számára."
+    },
+    {
+      header: "💼 Mérnöki Programok",
+      content: "Széleskörű mérnöki szakok közül választhat: Gépészmérnöki, Elektromérnöki, Informatikai, Építőmérnöki, és még sok más program áll rendelkezésre."
+    },
+    {
+      header: "🔬 Kutatási Lehetőségek",
+      content: "Az egyetem aktívan támogatja a tudományos kutatást. Számos kutatási projekt és laboratorium áll az oktatók és hallgatók rendelkezésére módszerek és technológiák fejlesztésére."
+    },
+    {
+      header: "🌍 Nemzetközi Kapcsolatok",
+      content: "Az SZE nemzetközi partnervárostok széles hálózatával működik együtt, és csereprogramokat kínál a hallgatók számára szerte a világon."
+    }
+  ];
 
+  const breadcrumbItems = [
+    { label: "Kezdőoldal", icon: "pi pi-home", command: () => console.log("home") },
+    { label: "Széchenyi István Egyetem", command: () => console.log("sze") },
+    { label: "Mérnöki Kar", command: () => console.log("engineering") },
+    { label: "Informatika", command: () => console.log("it") }
+  ];
+
+  // ===== COMPONENT WRAPPERS =====
   const TabButton = ({ id, label, icon }) => (
     <button
       onClick={() => setActiveTab(id)}
@@ -85,29 +129,44 @@ export default function App() {
           <TailwindDemo />
         )}
 
+        {/* ===== TAILWIND DEMO TAB ===== */}
+        {activeTab === "tailwind" && (
+          <TailwindDemo />
+        )}
+
         {/* ===== BUTTONS TAB ===== */}
         {activeTab === "buttons" && (
           <div className="space-y-6">
-            <ComponentCard title="Gomb Variációk" description="Összes rendelkezésre álló gomb stil">
-              <div className="flex flex-wrap gap-2">
-                <Button label="Alapértelmezett" />
-                <Button label="Secondary" variant="secondary" />
-                <Button label="Outline" variant="outline" />
-                <Button label="Text" variant="text" />
-                <Button label="Link" variant="link" />
-              </div>
-            </ComponentCard>
+            <Playground
+              title="Gomb Variációk"
+              description="Összes rendelkezésre álló gomb stil - próbáld ki a lekerekítés és méret élő módosítását"
+              controls={[
+                { prop: "radius", label: "Lekerekítés", options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"], default: "3xl" },
+                { prop: "size", label: "Méret", options: ["small", "normal", "large"], default: "normal" },
+              ]}
+              render={(v) => (
+                <div className="flex flex-wrap gap-2">
+                  <Button label="Alapértelmezett" radius={v.radius} size={v.size} />
+                  <Button label="Secondary" variant="secondary" radius={v.radius} size={v.size} />
+                  <Button label="Outline" variant="outline" radius={v.radius} size={v.size} />
+                  <Button label="Text" variant="text" radius={v.radius} size={v.size} />
+                  <Button label="Link" variant="link" radius={v.radius} size={v.size} />
+                </div>
+              )}
+              code={(v) => `<Button label="Alapértelmezett" radius="${v.radius}" size="${v.size}" />`}
+            />
 
-            <ComponentCard title="Gombok - Severity Szintek" description="Különböző fontosságot jelző szintek">
+
+            <Playground title="Gombok - Severity Szintek" description="Különböző fontosságot jelző szintek">
               <div className="flex flex-wrap gap-2">
                 <Button label="Info" />
                 <Button label="Siker" severity="success" />
                 <Button label="Figyelem" severity="warning" />
                 <Button label="Hiba" severity="danger" />
               </div>
-            </ComponentCard>
+            </Playground>
 
-            <ComponentCard title="Ikon Gombok" description="Csak ikonokat tartalmazó gombok">
+            <Playground title="Ikon Gombok" description="Csak ikonokat tartalmazó gombok">
               <div className="flex gap-3">
                 <IconButton icon="pi pi-home" />
                 <IconButton icon="pi pi-user" />
@@ -116,55 +175,87 @@ export default function App() {
                 <IconButton icon="pi pi-heart" />
                 <IconButton icon="pi pi-envelope" />
               </div>
-            </ComponentCard>
+            </Playground>
 
-            <ComponentCard title="Gombcsoport" description="Összekapcsolt gombok">
+            <Playground title="Gombcsoport" description="Összekapcsolt gombok">
               <ButtonGroup>
                 <Button label="Csapatok" icon="pi pi-users" />
                 <Button label="Projektek" icon="pi pi-briefcase" />
                 <Button label="Beállítások" icon="pi pi-cog" />
               </ButtonGroup>
-            </ComponentCard>
+            </Playground>
 
-            <ComponentCard title="Lenyitható Gomb" description="Menü nélküli gomb">
-              <div className="flex gap-3">
+            <Playground title="Lenyitható Gomb (SplitButton)" description="Gomb menüvel">
+              <div className="flex flex-wrap gap-3">
                 <SplitButton label="Műveletek" model={items} />
                 <SplitButton label="Műveletek" severity="secondary" model={items} />
                 <SplitButton label="Műveletek" severity="success" model={items} />
                 <SplitButton label="Műveletek" severity="warning" model={items} />
               </div>
-            </ComponentCard>
+            </Playground>
+
+            <Playground title="Toggle Gomb" description="Bekapcsolható/kikapcsolható gomb">
+              <ToggleButton checked={toggle} onChange={(e)=>setToggle(e.value)} onLabel="Bekapcsolva" offLabel="Kikapcsolva" />
+            </Playground>
+
+            <Playground title="Gomb Kiválasztás" description="Gombok közötti választás">
+              <SelectButton
+                options={["Nappali", "Éjjeli"]}
+                value={dayNight}
+                onChange={(a) => a.value !== null && setDayNight(a.value)}
+                className="w-full"
+              />
+            </Playground>
+
+            <Playground title="Eszköztár" description="Eszköztár gombok gyűjteménye">
+              <Toolbar
+                items={[
+                  { icon: "pi pi-home", label: "Otthon", title: "Kezdőoldal" },
+                  { separator: true },
+                  { icon: "pi pi-file", label: "Új", title: "Új dokumentum" },
+                  { icon: "pi pi-folder-open", label: "Megnyitás", title: "Fájl megnyitása" },
+                  { icon: "pi pi-save", label: "Mentés", title: "Dokumentum mentése" },
+                  { separator: true },
+                  { icon: "pi pi-print", label: "Nyomtatás", severity: "info", title: "Nyomtatás" }
+                ]}
+              />
+            </Playground>
           </div>
         )}
 
         {/* ===== INPUT FIELDS TAB ===== */}
         {activeTab === "inputs" && (
           <div className="space-y-6">
-            <ComponentCard title="Szöveg Input" description="Alapvető szöveg beviteli mezők">
-              <div className="space-y-2 max-w-lg">
-                <InputText placeholder="Sima szöveg input" className="w-full" />
-                <InputText placeholder="Határozatlan" invalid className="w-full ring-red-600 focus-visible:ring-1 focus-visible:ring-red-600" />
-              </div>
-            </ComponentCard>
+            <Playground
+              title="Szöveg Input"
+              description="Alapvető szöveg beviteli mezők - próbáld ki a lekerekítés és méret élő módosítását"
+              controls={[
+                { prop: "radius", label: "Lekerekítés", options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"], default: "3xl" },
+                { prop: "size", label: "Méret", options: ["small", "normal", "large"], default: "normal" },
+              ]}
+              render={(v) => (
+                <div className="space-y-2 max-w-lg">
+                  <InputText placeholder="Sima szöveg input" radius={v.radius} size={v.size} className="w-full" />
+                  <InputText placeholder="Határozatlan" invalid radius={v.radius} size={v.size} className="w-full ring-red-600 focus-visible:ring-1 focus-visible:ring-red-600" />
+                </div>
+              )}
+              code={(v) => `<InputText placeholder="Sima szöveg input" radius="${v.radius}" size="${v.size}" />`}
+            />
 
-            <ComponentCard title="Szűrt Input" description="Speciális szűrésű bevitel">
+            <Playground title="Szűrt Input" description="Speciális szűrésű bevitel">
               <div className="space-y-2 max-w-lg">
                 <KeyFilteredInput placeholder="Csak számok" keyfilter="int" className="w-full" />
                 <InputNumber value={num} onValueChange={(e)=>setNum(e.value)} showButtons className="w-full" />
               </div>
-            </ComponentCard>
+            </Playground>
 
-            {/*Jelszó Input - KÉSZ*/}
-
-            <ComponentCard title="Jelszó Input" description="Biztonságos jelszó bevitel">
+            <Playground title="Jelszó Input" description="Biztonságos jelszó bevitel">
               <div className="max-w-lg ">
                 <Password feedback placeholder="Jelszó" />
               </div>
-            </ComponentCard>
+            </Playground>
 
-            {/*Ikon Input - */}
-
-            <ComponentCard title="Ikon Mezők" description="Input ikokkal">
+            <Playground title="Ikon Mezők" description="Input ikonokkal">
               <div className="space-y-2 max-w-lg gap-3">
                 <IconField>
                   <InputIcon icon="pi pi-search" position="right" />
@@ -175,9 +266,9 @@ export default function App() {
                   <InputIcon icon="pi pi-envelope" position="right" />
                 </IconField>
               </div>
-            </ComponentCard>
+            </Playground>
 
-            <ComponentCard title="Input Csoport" description="Csoportosított inputok">
+            <Playground title="Input Csoport" description="Csoportosított inputok">
               <div className="space-y-2">
                 <InputGroup className="max-w-xl">
                   <InputGroupAddon>https://</InputGroupAddon>
@@ -190,9 +281,9 @@ export default function App() {
                   <Button label="Küldés" />
                 </InputGroup>
               </div>
-            </ComponentCard>
+            </Playground>
 
-            <ComponentCard title="Float Label" description="Úszó címkés inputok">
+            <Playground title="Float Label" description="Úszó címkés inputok">
               <div className="space-y-3">
                 <FloatLabel label="Név">
                   <InputText placeholder=" " className="w-72" />
@@ -201,141 +292,16 @@ export default function App() {
                   <InputText placeholder=" " className="w-72" />
                 </FloatLabel>
               </div>
-            </ComponentCard>
-          </div>
-        )}
+            </Playground>
 
-        {/* ===== SELECTION TAB ===== */}
-        {activeTab === "selection" && (
-          <div className="space-y-6">
-            <ComponentCard title="Lenyitható Lista" description="Opcióból kiválasztás">
-              <Dropdown value={city} onChange={(e)=>setCity(e.value)} options={cities} optionLabel="name" placeholder="Válassz várost..." className="w-full max-w-sm" />
-            </ComponentCard>
-
-            <ComponentCard title="Automatikus Kiegészítés" description="Javaslatokkal dolgozó input">
-              <AutoComplete 
-                value={acValue} 
-                suggestions={cities.map(c=>c.name).filter(n=>n.toLowerCase().includes((acValue||'').toLowerCase()))} 
-                onChange={(e)=>setAcValue(e.value)} 
-                placeholder="Keresés…" 
-                className="w-full max-w-sm" 
-              />
-            </ComponentCard>
-
-            <ComponentCard title="Jelölőnégyzet" description="Logikai értékek választása">
+            <Playground title="Bankkártya adatok bevitele" description="3x input egy csoportban">
               <div className="space-y-2">
-                <label className="inline-flex items-center gap-2">
-                  <Checkbox />
-                  <span>Fogadok el</span>
-                </label>
-                <label className="inline-flex items-center gap-2">
-                  <Checkbox />
-                  <span>Marketing e-mailek</span>
-                </label>
-              </div>
-            </ComponentCard>
-
-            <ComponentCard title="Rádiógomb" description="Kizárólagos választás">
-              <div className="space-y-2">
-                <label className="inline-flex items-center gap-2">
-                  <RadioButton inputId="opt1" name="options" value="a" onChange={(e)=>setRB(e.value)} checked={RB==="a"} />
-                  <span>Opció A</span>
-                </label>
-                <label className="inline-flex items-center gap-2">
-                  <RadioButton inputId="opt2" name="options" value="b" onChange={(e)=>setRB(e.value)} checked={RB==="b"} />
-                  <span>Opció B</span>
-                </label>
-              </div>
-            </ComponentCard>
-
-            <ComponentCard title="Multi-Select" description="Több opció kiválasztása">
-              <MultiSelect options={options} optionLabel="name" placeholder="Városok kiválasztása..." className="w-full max-w-sm" />
-            </ComponentCard>
-
-            <ComponentCard title="Jogi Statusz Jelölőnégyzet" description="Három állapotú jelölőnégyzet">
-              <MultiStateCheckbox />
-            </ComponentCard>
-
-            <ComponentCard title="Toggle Gomb" description="Bekapcsolható/kikapcsolható gomb">
-              <ToggleButton checked={toggle} onChange={(e)=>setToggle(e.value)} onLabel="Bekapcsolva" offLabel="Kikapcsolva" />
-            </ComponentCard>
-          </div>
-        )}
-
-        {/* ===== DATE & TIME TAB ===== */}
-        {activeTab === "datetime" && (
-          <div className="space-y-6">
-            <ComponentCard title="Naptár - Egynap" description="Egyetlen nap kiválasztása">
-              <Calendar
-                value={date}
-                onChange={(e) => setDate(e.value)}
-                showIcon
-                placeholder="Válassz dátumot"
-                inline
-              />
-            </ComponentCard>
-
-            <ComponentCard title="Naptár - Tartomány" description="Dátumtartomány kiválasztása">
-              <Calendar
-                value={range}
-                onChange={(e) => setRange(e.value)}
-                selectionMode="range"
-                showIcon
-                showButtonBar
-                placeholder="Válassz időszakot"
-              />
-            </ComponentCard>
-
-            <ComponentCard title="Naptár - Idővel" description="Dátum és idő kiválasztása">
-              <Calendar
-                value={date}
-                onChange={(e) => setDate(e.value)}
-                showTime
-                hourFormat="24"
-                showIcon
-                placeholder="Dátum és idő"
-                hideOnDateTimeSelect={false}
-              />
-            </ComponentCard>
-          </div>
-        )}
-
-        {/* ===== ADVANCED TAB ===== */}
-        {activeTab === "advanced" && (
-          <div className="space-y-6">
-            <ComponentCard title="Csúszka" description="Numerikus értékek kiválasztása">
-              <Slider value={range1} onChange={(e)=>setRange1(e.value)} className="w-64" />
-            </ComponentCard>
-
-            <ComponentCard title="Forgó Gomb" description="Numerikus bevitel gömbön keresztül">
-              <Knob value={num} onChange={(e)=>setNum(e.value)} min={0} max={100} />
-            </ComponentCard>
-
-            <ComponentCard title="OTP Input" description="Egyszeri jelszó bevitele">
-              <div className="space-y-2">
-                <InputOtp value={otp} onChange={(e)=>setOtp(e.value)} length={6} />
+                <InputOtp value={otp} onChange={(e)=>setOtp(e.value)} length={3} />
                 <Button label="Ellenőrzés" />
               </div>
-            </ComponentCard>
+            </Playground>
 
-            <ComponentCard title="Kapcsoló" description="Bekapcsolható/kikapcsolható">
-              <InputSwitch checked={sw} onChange={(e)=>setSw(e.value)} />
-            </ComponentCard>
-
-            <ComponentCard title="Értékelés" description="Csillag értékelés">
-              <Rating value={rating} onChange={(e)=>setRating(e.value)} cancel={false} />
-            </ComponentCard>
-
-            <ComponentCard title="Gomb Kiválasztás" description="Gombok közötti választás">
-              <SelectButton options={["Nappali","Éjjeli"]} className="w-full" />
-            </ComponentCard>
-          </div>
-        )}
-
-        {/* ===== LAYOUT TAB ===== */}
-        {activeTab === "layout" && (
-          <div className="space-y-6">
-            <ComponentCard title="Rich Text Editor" description="HTML szerkesztés">
+            <Playground title="Rich Text Editor" description="HTML szerkesztés">
               <div className="space-y-3">
                 <Editor
                   value={html}
@@ -351,35 +317,1145 @@ export default function App() {
                   <pre className="text-xs mt-2 overflow-x-auto">{html}</pre>
                 </div>
               </div>
-            </ComponentCard>
+            </Playground>
 
-            <ComponentCard title="Dialog / Modal" description="Modal párbeszéd">
-              <div>
-                <Button label="Dialog Megnyitása" onClick={()=>setVisible(true)} />
-                <Dialog 
-                  header="Biztosan folytatod?" 
-                  visible={visible} 
-                  style={{ width: "30rem" }} 
-                  onHide={()=>setVisible(false)}
-                  footer={
-                    <div className="flex justify-end gap-2">
-                      <Button label="Mégse" outlined onClick={()=>setVisible(false)} />
-                      <Button label="OK" onClick={()=>setVisible(false)} />
-                    </div>
-                  }
-                >
-                  <p>Ez egy modal párbeszéd komponens.</p>
-                </Dialog>
-              </div>
-            </ComponentCard>
+            <Playground title="Csúszka" description="Numerikus értékek kiválasztása">
+              <Slider value={range1} onChange={(e)=>setRange1(e.value)} className="w-64" />
+            </Playground>
 
-            <ComponentCard title="Split Button" description="Gomb menüvel">
+            <Playground title="Forgó Gomb" description="Numerikus bevitel gömbön keresztül">
+              <Knob value={num} onChange={(e)=>setNum(e.value)} min={0} max={100} />
+            </Playground>
+          </div>
+        )}
+
+        {/* ===== SELECTION TAB ===== */}
+        {activeTab === "selection" && (
+          <div className="space-y-6">
+            <Playground
+              title="Lenyitható Lista"
+              description="Opcióból kiválasztás - próbáld ki a lekerekítés és méret élő módosítását"
+              controls={[
+                { prop: "radius", label: "Lekerekítés", options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"], default: "xl" },
+                { prop: "size", label: "Méret", options: ["small", "normal", "large"], default: "normal" },
+              ]}
+              render={(v) => (
+                <Dropdown value={city} onChange={(e)=>setCity(e.value)} options={cities} optionLabel="name" placeholder="Válassz várost..." radius={v.radius} size={v.size} className="w-full max-w-sm" />
+              )}
+              code={(v) => `<Dropdown options={cities} optionLabel="name" radius="${v.radius}" size="${v.size}" />`}
+            />
+
+            <Playground title="Automatikus Kiegészítés" description="Javaslatokkal dolgozó input">
+              <AutoComplete 
+                value={acValue} 
+                suggestions={cities.map(c=>c.name).filter(n=>n.toLowerCase().includes((acValue||'').toLowerCase()))} 
+                onChange={(e)=>setAcValue(e.value)} 
+                placeholder="Keresés…" 
+                className="w-full max-w-sm" 
+              />
+            </Playground>
+
+            <Playground title="Jelölőnégyzet" description="Logikai értékek választása">
               <div className="space-y-2">
-                <SplitButton label="Műveletek" model={items} />
-                <SplitButton label="Lehetőségek" variant="secondary" model={items} />
-                <SplitButton label="Akciók" variant="outline" model={items} />
+                <label className="inline-flex items-center gap-2">
+                  <Checkbox />
+                  <span>Fogadok el</span>
+                </label>
+                <label className="inline-flex items-center gap-2">
+                  <Checkbox />
+                  <span>Marketing e-mailek</span>
+                </label>
               </div>
-            </ComponentCard>
+            </Playground>
+
+            <Playground title="Rádiógomb" description="Kizárólagos választás">
+              <div className="space-y-2">
+                <label className="inline-flex items-center gap-2">
+                  <RadioButton inputId="opt1" name="options" value="a" onChange={(e)=>setRB(e.value)} checked={RB==="a"} />
+                  <span>Opció A</span>
+                </label>
+                <label className="inline-flex items-center gap-2">
+                  <RadioButton inputId="opt2" name="options" value="b" onChange={(e)=>setRB(e.value)} checked={RB==="b"} />
+                  <span>Opció B</span>
+                </label>
+              </div>
+            </Playground>
+
+            <Playground title="Multi-Select" description="Több opció kiválasztása">
+              <MultiSelect options={options} optionLabel="name" placeholder="Városok kiválasztása..." className="w-full max-w-sm" />
+            </Playground>
+
+            <Playground title="Jogi Statusz Jelölőnégyzet (Multi-State)" description="Három állapotú jelölőnégyzet">
+              <MultiStateCheckbox />
+            </Playground>
+
+            <Playground title="Háromállapotú Jelölőnégyzet" description="Háromállapotú kiválasztás">
+              <TriStateCheckbox />
+            </Playground>
+
+            <Playground title="Listbox" description="Lista alapú kiválasztás">
+              <Listbox options={cities} optionLabel="name" placeholder="Város kiválasztása" className="w-full max-w-sm" />
+            </Playground>
+
+            <Playground title="TreeSelect" description="Fa alapú kiválasztás">
+              <TreeSelect placeholder="Válassz egy elemet" className="w-full" />
+            </Playground>
+
+            <Playground title="Fa Komponens" description="Fa szerkezetű adatok megjelenítésére">
+              <Tree
+                value={[
+                  {
+                    key: "0",
+                    label: "Széchenyi István Egyetem",
+                    data: "SZE",
+                    icon: "pi pi-fw pi-folder",
+                    children: [
+                      {
+                        key: "0-0",
+                        label: "Mérnöki Kar",
+                        data: "Engineering",
+                        icon: "pi pi-fw pi-folder",
+                        children: [
+                          { key: "0-0-0", label: "Informatika", data: "IT", icon: "pi pi-fw pi-file" },
+                          { key: "0-0-1", label: "Villamosmérnöki", data: "EEE", icon: "pi pi-fw pi-file" }
+                        ]
+                      },
+                      {
+                        key: "0-1",
+                        label: "Gazdaságtudományi Kar",
+                        data: "Business",
+                        icon: "pi pi-fw pi-folder"
+                      }
+                    ]
+                  }
+                ]}
+                expandedKeys={expandedKeys}
+                onToggle={(e) => setExpandedKeys(e.value)}
+              />
+            </Playground>
+          </div>
+        )}
+
+        {/* ===== DATE & TIME TAB ===== */}
+        {activeTab === "datetime" && (
+          <div className="space-y-6">
+            <Playground title="Naptár - Egynap" description="Egyetlen nap kiválasztása">
+              <Calendar
+                value={date}
+                onChange={(e) => setDate(e.value)}
+                showIcon
+                placeholder="Válassz dátumot"
+                inline
+              />
+            </Playground>
+
+            <Playground title="Naptár - Tartomány" description="Dátumtartomány kiválasztása">
+              <Calendar
+                value={range}
+                onChange={(e) => setRange(e.value)}
+                selectionMode="range"
+                showIcon
+                showButtonBar
+                placeholder="Válassz időszakot"
+              />
+            </Playground>
+
+            <Playground title="Naptár - Idővel" description="Dátum és idő kiválasztása">
+              <Calendar
+                value={date}
+                onChange={(e) => setDate(e.value)}
+                showTime
+                hourFormat="24"
+                showIcon
+                placeholder="Dátum és idő"
+                hideOnDateTimeSelect={false}
+              />
+            </Playground>
+
+            <Playground title="Idő Választó" description="Idő kiválasztása">
+              <TimePicker
+                value={selectedTime}
+                onChange={(value) => setSelectedTime(value)}
+                timeOnly
+                hourFormat="24"
+                placeholder="Válassz időt"
+              />
+            </Playground>
+          </div>
+        )}
+
+        {/* ===== ADVANCED TAB ===== */}
+        {activeTab === "advanced" && (
+          <div className="space-y-6">
+            <Playground
+              title="Dialog / Modal"
+              description="Modal párbeszéd - próbáld ki a lekerekítés élő módosítását"
+              controls={[
+                { prop: "radius", label: "Lekerekítés", options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"], default: "3xl" },
+              ]}
+              render={(v) => (
+                <div>
+                  <Button label="Dialog Megnyitása" onClick={()=>setVisible(true)} />
+                  <Dialog
+                    header="Biztosan folytatod?"
+                    visible={visible}
+                    radius={v.radius}
+                    style={{ width: "30rem" }}
+                    onHide={()=>setVisible(false)}
+                    footer={
+                      <div className="flex justify-end gap-2">
+                        <Button label="Mégse" outlined onClick={()=>setVisible(false)} />
+                        <Button label="OK" onClick={()=>setVisible(false)} />
+                      </div>
+                    }
+                  >
+                    <p>Ez egy modal párbeszéd komponens.</p>
+                  </Dialog>
+                </div>
+              )}
+              code={(v) => `<Dialog header="Biztosan folytatod?" radius="${v.radius}" ... />`}
+            />
+
+            <Playground title="Confirm Dialog" description="Megerősítésre kérő dialógus különböző típusokkal">
+              <div className="space-y-3">
+                <div>
+                  <Button 
+                    label="Info Megerősítés" 
+                    onClick={() => setConfirmInfoVisible(true)}
+                  />
+                  <ConfirmDialog
+                    visible={confirmInfoVisible}
+                    title="Információ"
+                    message="Ez egy információs megerősítési dialógus az SZE komponenssel."
+                    icon="pi pi-info-circle"
+                    severity="info"
+                    confirmLabel="Értem"
+                    cancelLabel="Bezárás"
+                    onConfirm={() => {
+                      console.log("Info megerősítve");
+                      setConfirmInfoVisible(false);
+                    }}
+                    onCancel={() => setConfirmInfoVisible(false)}
+                  />
+                </div>
+
+                <div>
+                  <Button 
+                    label="Figyelem - Megerősítés" 
+                    variant="secondary"
+                    onClick={() => setConfirmWarningVisible(true)}
+                  />
+                  <ConfirmDialog
+                    visible={confirmWarningVisible}
+                    title="Figyelem"
+                    message="Biztos vagy a műveletben? Ez nem vonható vissza közvetlenül."
+                    icon="pi pi-exclamation-triangle"
+                    severity="warning"
+                    confirmLabel="Igen, folytatom"
+                    cancelLabel="Mégse"
+                    onConfirm={() => {
+                      console.log("Figyelmeztetés megerősítve");
+                      setConfirmWarningVisible(false);
+                    }}
+                    onCancel={() => setConfirmWarningVisible(false)}
+                  />
+                </div>
+
+                <div>
+                  <Button 
+                    label="Veszélyes Művelet" 
+                    severity="danger"
+                    onClick={() => setConfirmDangerVisible(true)}
+                  />
+                  <ConfirmDialog
+                    visible={confirmDangerVisible}
+                    title="Vigyázat - Veszélyes Művelet"
+                    message="Ez a művelet véglegesen törli az adatokat. Tényleg folytatni szeretnéd?"
+                    icon="pi pi-exclamation-circle"
+                    severity="danger"
+                    confirmLabel="Igen, törlés"
+                    cancelLabel="Nem, mégse"
+                    onConfirm={() => {
+                      console.log("Veszélyes művelet megerősítve");
+                      setConfirmDangerVisible(false);
+                    }}
+                    onCancel={() => setConfirmDangerVisible(false)}
+                  />
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="Confirm PopUp" description="Kisebb popup megerősítések gombokhoz">
+              <div className="space-y-6">
+                {/* Info PopUp */}
+                <div className="flex justify-center pt-12 pb-12 bg-gray-50 rounded-lg relative">
+                  <button
+                    onClick={() => setPopupInfoVisible(!popupInfoVisible)}
+                    className="px-4 py-2 bg-sze-primary text-white rounded-lg hover:bg-sze-primary-900 transition-colors"
+                  >
+                    Info PopUp
+                  </button>
+                  {popupInfoVisible && (
+                    <ConfirmPopUp
+                      visible={popupInfoVisible}
+                      message="Szeretnéd megtekinteni az információimat?"
+                      icon="pi pi-info-circle"
+                      severity="info"
+                      confirmLabel="Igen"
+                      cancelLabel="Mégse"
+                      position="bottom"
+                      onConfirm={() => {
+                        console.log("Info PopUp megerősítve");
+                        setPopupInfoVisible(false);
+                      }}
+                      onCancel={() => setPopupInfoVisible(false)}
+                    />
+                  )}
+                </div>
+
+                {/* Warning PopUp */}
+                <div className="flex justify-center pt-12 pb-12 bg-gray-50 rounded-lg relative">
+                  <button
+                    onClick={() => setPopupWarningVisible(!popupWarningVisible)}
+                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                  >
+                    Figyelem PopUp
+                  </button>
+                  {popupWarningVisible && (
+                    <ConfirmPopUp
+                      visible={popupWarningVisible}
+                      message="Ez megváltoztat néhány beállítást. Folytatod?"
+                      icon="pi pi-exclamation-triangle"
+                      severity="warning"
+                      confirmLabel="Igen, továbbmegyek"
+                      cancelLabel="Mégsem"
+                      position="top"
+                      onConfirm={() => {
+                        console.log("Warning PopUp megerősítve");
+                        setPopupWarningVisible(false);
+                      }}
+                      onCancel={() => setPopupWarningVisible(false)}
+                    />
+                  )}
+                </div>
+
+                {/* Success PopUp */}
+                <div className="flex justify-center pt-12 pb-12 bg-gray-50 rounded-lg relative">
+                  <button
+                    onClick={() => setPopupSuccessVisible(!popupSuccessVisible)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Sikeres PopUp
+                  </button>
+                  {popupSuccessVisible && (
+                    <ConfirmPopUp
+                      visible={popupSuccessVisible}
+                      message="Az intézmény sikeresen mentve."
+                      icon="pi pi-check"
+                      severity="success"
+                      confirmLabel="OK"
+                      cancelLabel="Bezár"
+                      position="bottom"
+                      onConfirm={() => {
+                        console.log("Success PopUp megerősítve");
+                        setPopupSuccessVisible(false);
+                      }}
+                      onCancel={() => setPopupSuccessVisible(false)}
+                    />
+                  )}
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="Menu" description="Menü navigáció gombokkal">
+              <div className="space-y-6">
+                {/* Popup Menu */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Popup Menü</h4>
+                  <Menu
+                    popup
+                    label="Széchenyi Menü"
+                    icon="pi pi-bars"
+                    severity="primary"
+                    items={[
+                      { label: "🏫 Egyetem", icon: "pi pi-building", command: () => console.log("Egyetem") },
+                      { label: "📚 Képzések", icon: "pi pi-book", command: () => console.log("Képzések") },
+                      { label: "🔬 Kutatás", icon: "pi pi-search", command: () => console.log("Kutatás") },
+                      { separator: true },
+                      { label: "👥 Kapcsolat", icon: "pi pi-phone", command: () => console.log("Kapcsolat") },
+                      { label: "📋 Jelentkezés", icon: "pi pi-file", command: () => console.log("Jelentkezés") },
+                    ]}
+                  />
+                </div>
+
+                {/* Multiple Menu Buttons */}
+                <div className="flex flex-wrap gap-3">
+                  <Menu
+                    popup
+                    label="Intézet"
+                    icon="pi pi-building"
+                    severity="secondary"
+                    items={[
+                      { label: "Műszaki Intézet", command: () => console.log("Műszaki") },
+                      { label: "Gazdasági Intézet", command: () => console.log("Gazdasági") },
+                      { label: "Jogi Intézet", command: () => console.log("Jogi") },
+                    ]}
+                  />
+                  <Menu
+                    popup
+                    label="Adminisztráció"
+                    icon="pi pi-cog"
+                    severity="primary"
+                    items={[
+                      { label: "Profil Beállítások", icon: "pi pi-user", command: () => console.log("Profil") },
+                      { label: "Jogosultságok", icon: "pi pi-lock", command: () => console.log("Jogosultságok") },
+                      { separator: true },
+                      { label: "Kijelentkezés", icon: "pi pi-sign-out", command: () => console.log("Kijelentkezés") },
+                    ]}
+                  />
+                  <Menu
+                    popup
+                    label="Segítség"
+                    icon="pi pi-question-circle"
+                    severity="info"
+                    items={[
+                      { label: "Rólunk", command: () => console.log("Rólunk") },
+                      { label: "GYIK", command: () => console.log("GYIK") },
+                      { label: "Támogatás", command: () => console.log("Támogatás") },
+                    ]}
+                  />
+                </div>
+
+                {/* Menu with Danger Severity */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Veszélyes Műveletek</h4>
+                  <Menu
+                    popup
+                    label="Műveletek"
+                    icon="pi pi-exclamation-triangle"
+                    severity="danger"
+                    items={[
+                      { label: "Adatok Exportálása", icon: "pi pi-download", command: () => console.log("Export") },
+                      { label: "Mentés Biztonsági Mentése", icon: "pi pi-save", command: () => console.log("Mentés") },
+                      { separator: true },
+                      { label: "Törlés", icon: "pi pi-trash", command: () => console.log("Törlés") },
+                    ]}
+                  />
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="Megamenu" description="Többoszlopos navigációs menü">
+              <div className="space-y-6">
+                {/* Academic Megamenu - Abbreviated for space */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Széchenyi Egyetem Megamenu</h4>
+                  <Megamenu
+                    items={[
+                      {
+                        label: "🏫 Oktatás",
+                        icon: "pi pi-book",
+                        items: [
+                          {
+                            label: "Alapképzések",
+                            items: [
+                              { label: "Informatika", command: () => console.log("Informatika") },
+                              { label: "Mérnöki Tudományok", command: () => console.log("Mérnöki") },
+                              { label: "Gazdaságtan", command: () => console.log("Gazdaságtan") },
+                            ],
+                          },
+                          {
+                            label: "Mesterképzések",
+                            items: [
+                              { label: "Mérnökinformatika", command: () => console.log("Mérnökinformatika") },
+                              { label: "Üzletmenedzsment", command: () => console.log("Üzletmenedzsment") },
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        label: "🔬 Kutatás",
+                        icon: "pi pi-search",
+                        items: [
+                          {
+                            label: "Kutatási Intézetek",
+                            items: [
+                              { label: "Robotika Laboratorium", command: () => console.log("Robotika") },
+                              { label: "AI és Gépi Tanulás", command: () => console.log("AI") },
+                            ],
+                          },
+                        ],
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="Menubar" description="Alkalmazás fejléc menüsáv">
+              <div className="space-y-6">
+                {/* Main Menubar */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Széchenyi Egyetem Menubar</h4>
+                  <Menubar
+                    items={[
+                      {
+                        label: "Kezdőlap",
+                        icon: "pi pi-home",
+                        command: () => console.log("Kezdőlap"),
+                      },
+                      {
+                        label: "Oktatás",
+                        icon: "pi pi-book",
+                        items: [
+                          { label: "Alapképzések", command: () => console.log("Alapképzések") },
+                          { label: "Mesterképzések", command: () => console.log("Mesterképzések") },
+                        ],
+                      },
+                      {
+                        label: "Beállítások",
+                        icon: "pi pi-cog",
+                        items: [
+                          { label: "Profil", command: () => console.log("Profil") },
+                          { label: "Kijelentkezés", command: () => console.log("Kijelentkezés") },
+                        ],
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="TieredMenu" description="Hierarchikus összevont menü">
+              <TieredMenu
+                items={[
+                  {
+                    label: "Fájl",
+                    icon: "pi pi-fw pi-file",
+                    items: [
+                      { label: "Új", icon: "pi pi-fw pi-plus" },
+                      { label: "Megnyitás", icon: "pi pi-fw pi-external-link" },
+                      { label: "Mentés", icon: "pi pi-fw pi-save" }
+                    ]
+                  },
+                  {
+                    label: "Szerkesztés",
+                    icon: "pi pi-fw pi-pencil",
+                    items: [
+                      { label: "Másolás", icon: "pi pi-fw pi-copy" },
+                      { label: "Törlés", icon: "pi pi-fw pi-trash" }
+                    ]
+                  },
+                  {
+                    label: "Nézet",
+                    icon: "pi pi-fw pi-eye"
+                  }
+                ]}
+              />
+            </Playground>
+
+            <Playground
+              title="Message"
+              description="Egyedi értesítési üzenetek - próbáld ki a lekerekítés élő módosítását"
+              controls={[
+                { prop: "radius", label: "Lekerekítés", options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"], default: "lg" },
+              ]}
+              render={(v) => (
+                <div className="space-y-4">
+                  {/* Info Message */}
+                  <Message
+                    severity="info"
+                    title="Információ"
+                    text="A Széchenyi István Egyetem Magyarország egyik legrangosabb műszaki egyeteme."
+                    radius={v.radius}
+                    closable
+                  />
+
+                  {/* Success Message */}
+                  <Message
+                    severity="success"
+                    title="Sikeres Operáció"
+                    text="A hallgató sikeresen regisztrálva lett a képzésre."
+                    icon="pi pi-check"
+                    radius={v.radius}
+                    closable
+                  />
+
+                  {/* Warning Message */}
+                  <Message
+                    severity="warning"
+                    title="Figyelmeztetés"
+                    text="Az adatmódosítások 24 óra múlva lépnek érvénybe."
+                    radius={v.radius}
+                    closable
+                  />
+
+                  {/* Error Message */}
+                  <Message
+                    severity="error"
+                    title="Hiba"
+                    text="Az alkalmazás feldolgozása sikertelen. Kérjük próbálja újra később."
+                    radius={v.radius}
+                    closable
+                  />
+                </div>
+              )}
+              code={(v) => `<Message severity="info" title="Információ" text="..." radius="${v.radius}" closable />`}
+            />
+
+            <Playground title="Messages" description="Több üzenet kezelése">
+              <div className="space-y-6">
+                {/* Message List Demo */}
+                <div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <button
+                      onClick={() => {
+                        setMessages([
+                          ...messages,
+                          { severity: 'info', title: 'Info', text: 'Ez egy információs üzenet.' }
+                        ]);
+                      }}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium"
+                    >
+                      Info Hozzáadása
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMessages([
+                          ...messages,
+                          { severity: 'success', title: 'Siker', text: 'A műveletet sikeresen végrehajtva.' }
+                        ]);
+                      }}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 text-sm font-medium"
+                    >
+                      Success Hozzáadása
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMessages([
+                          ...messages,
+                          { severity: 'error', title: 'Hiba', text: 'Valami hiba történt!' }
+                        ]);
+                      }}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
+                    >
+                      Error Hozzáadása
+                    </button>
+                    <button
+                      onClick={() => setMessages([])}
+                      className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm font-medium"
+                    >
+                      Összes Törlése
+                    </button>
+                  </div>
+
+                  {/* Messages Container */}
+                  {messages.length > 0 && (
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      {messages.map((msg, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                          <div
+                            className={`flex-1 p-3 rounded-lg border-l-4 ${
+                              msg.severity === 'info'
+                                ? 'bg-blue-50 border-blue-500 text-blue-800'
+                                : msg.severity === 'success'
+                                ? 'bg-green-50 border-green-500 text-green-800'
+                                : 'bg-red-50 border-red-500 text-red-800'
+                            }`}
+                          >
+                            {msg.title && (
+                              <p className="font-semibold mb-1">{msg.title}</p>
+                            )}
+                            <p className="text-sm">{msg.text}</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const newMessages = messages.filter((_, i) => i !== index);
+                              setMessages(newMessages);
+                            }}
+                            className="flex-shrink-0 p-1 hover:opacity-70 transition-opacity duration-200"
+                          >
+                            <i className="pi pi-times text-lg" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="Toast" description="Értesítési toast üzenetek">
+              <div className="flex gap-2">
+                <Button label="Info Toast" onClick={() => {}} />
+                <Button label="Siker Toast" severity="success" onClick={() => {}} />
+                <Button label="Figyelem Toast" severity="warning" onClick={() => {}} />
+              </div>
+            </Playground>
+
+            <Playground title="Tooltip" description="Hover tooltip tájékoztatás">
+              <div className="flex gap-4">
+                <Tooltip content="Ez egy tooltip">
+                  <span className="text-sze-primary cursor-help">Mutass rá</span>
+                </Tooltip>
+                <Tooltip content="Másik tooltip" position="bottom">
+                  <span className="text-sze-secondary cursor-help">Lent</span>
+                </Tooltip>
+              </div>
+            </Playground>
+          </div>
+        )}
+
+        {/* ===== LAYOUT & FORMA TAB ===== */}
+        {activeTab === "layout" && (
+          <div className="space-y-6">
+            <Playground title="Accordion" description="Kiterjeszthető szekciók az SZE információival">
+              <Accordian items={accordianItems} />
+            </Playground>
+
+            <Playground
+              title="Avatar"
+              description="Felhasználói profilképek több méretben és formában - próbáld ki a méret és forma élő módosítását"
+              controls={[
+                { prop: "size", label: "Méret", options: ["small", "normal", "large", "xlarge"], default: "normal" },
+                { prop: "shape", label: "Forma", options: ["circle", "square"], default: "circle" },
+              ]}
+              render={(v) => (
+                <div className="flex flex-wrap items-center gap-6">
+                  <div className="flex flex-col items-center gap-2">
+                    <Avatar size={v.size} shape={v.shape} label="JD" />
+                    <span className="text-xs text-gray-600">Betűjel</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <Avatar size={v.size} shape={v.shape} icon="pi pi-user" />
+                    <span className="text-xs text-gray-600">Ikon</span>
+                  </div>
+                </div>
+              )}
+              code={(v) => `<Avatar size="${v.size}" shape="${v.shape}" label="JD" />`}
+            />
+
+            <Playground title="Breadcrumb" description="Navigációs útvonal az aktuális oldal helyzetének mutatására">
+              <div className="space-y-4">
+                <Breadcrumb items={breadcrumbItems} />
+                <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                  <p>A Breadcrumb komponens segít a felhasználóknak megérteni a hierarchikus navigációt.</p>
+                </div>
+              </div>
+            </Playground>
+
+            <Playground
+              title="Card"
+              description="Tartalom megjelenítésére szolgáló komponens - próbáld ki a lekerekítés és árnyék élő módosítását"
+              controls={[
+                { prop: "radius", label: "Lekerekítés", options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"], default: "2xl" },
+                { prop: "shadow", label: "Árnyék", options: ["sm", "base", "md", "lg", "xl", "2xl"], default: "md" },
+              ]}
+              render={(v) => (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card
+                      title="Alapszintű Card"
+                      subtitle="Fejléc és tartalom"
+                      radius={v.radius}
+                      shadow={v.shadow}
+                    >
+                      <p className="text-gray-700">
+                        Ez egy egyszerű card komponens, amely közös tartalmak megjelenítésére szolgál.
+                      </p>
+                    </Card>
+
+                    <Card
+                      title="Card Footer-rel"
+                      subtitle="Fejléc, tartalom és lábléc"
+                      radius={v.radius}
+                      shadow={v.shadow}
+                      footer={
+                        <div className="flex gap-2 justify-end">
+                          <Button label="Mégsem" variant="outline" size="small" />
+                          <Button label="OK" size="small" />
+                        </div>
+                      }
+                    >
+                      <p className="text-gray-700 mb-3">
+                        Ez a card tartalmaz egy lábléchez, amely gombokat vagy egyéb elemeket tartalmazhat.
+                      </p>
+                    </Card>
+                  </div>
+
+                  <Card
+                    title="Széchenyi István Egyetem"
+                    subtitle="Guido Estathé és Tudás Központja"
+                    radius={v.radius}
+                    shadow={v.shadow}
+                  >
+                    <div className="space-y-3">
+                      <p className="text-gray-700">
+                        A Széchenyi István Egyetem (SZE) Magyarország egyik vezető felsőoktatási intézménye.
+                      </p>
+                      <div className="flex gap-2 flex-wrap">
+                        <span className="px-3 py-1 bg-sze-primary-100 text-sze-primary rounded-full text-sm">📚 Oktatás</span>
+                        <span className="px-3 py-1 bg-sze-secondary-100 text-sze-secondary rounded-full text-sm">🔬 Kutatás</span>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              )}
+              code={(v) => `<Card title="Alapszintű Card" subtitle="Fejléc és tartalom" radius="${v.radius}" shadow="${v.shadow}">...</Card>`}
+            />
+
+            <Playground
+              title="Chip"
+              description="Kis tagok, kategóriák és státuszok megjelenítésére - próbáld ki a lekerekítés élő módosítását"
+              controls={[
+                { prop: "radius", label: "Lekerekítés", options: ["none", "sm", "md", "lg", "xl", "2xl", "3xl", "full"], default: "full" },
+              ]}
+              render={(v) => (
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold text-sze-primary mb-2">Alapszintű Chipek</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Chip label="React" icon="pi pi-star" severity="primary" radius={v.radius} />
+                      <Chip label="JavaScript" severity="secondary" radius={v.radius} />
+                      <Chip label="Tailwind CSS" severity="success" radius={v.radius} />
+                      <Chip label="UI Library" severity="warning" radius={v.radius} />
+                      <Chip label="Component" severity="danger" radius={v.radius} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-sze-primary mb-2">Eltávolítható Chipek</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {chips.map((chip) => (
+                        <Chip
+                          key={chip.id}
+                          label={chip.label}
+                          severity={chip.severity}
+                          radius={v.radius}
+                          closable
+                          onClose={() => setChips(chips.filter(c => c.id !== chip.id))}
+                        />
+                      ))}
+                    </div>
+                    {chips.length === 0 && (
+                      <p className="text-gray-500 text-sm">Nincs chip. Kattintsd meg az X gombot az eltávolításához!</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-sze-primary mb-2">Ikones Chipek</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Chip label="Felhasználó" icon="pi pi-user" severity="primary" radius={v.radius} />
+                      <Chip label="Beállítások" icon="pi pi-cog" severity="secondary" radius={v.radius} />
+                      <Chip label="Sikeres" icon="pi pi-check" severity="success" radius={v.radius} />
+                      <Chip label="Figyelem" icon="pi pi-exclamation-triangle" severity="warning" radius={v.radius} />
+                      <Chip label="Hiba" icon="pi pi-times" severity="danger" radius={v.radius} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              )}
+              code={(v) => `<Chip label="React" icon="pi pi-star" severity="primary" radius="${v.radius}" />`}
+            />
+
+            <Playground title="Divider" description="Tartalom szétválasztó komponens">
+              <div className="space-y-6">
+                {/* Horizontal Divider */}
+                <div>
+                  <h4 className="font-semibold text-sze-primary mb-3">Horizontal Divider</h4>
+                  <div>
+                    <p className="text-gray-700 mb-2">Tartalom fölött</p>
+                    <Divider />
+                    <p className="text-gray-700 mb-2">Tartalom között</p>
+                    <Divider type="dashed" />
+                    <p className="text-gray-700">Tartalom alatt</p>
+                  </div>
+                </div>
+
+                {/* Horizontal Divider with Text */}
+                <div>
+                  <h4 className="font-semibold text-sze-primary mb-3">Divider szöveggel</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-gray-700 mb-2">Széchenyi István Egyetem</p>
+                      <Divider align="center">VAGY</Divider>
+                      <p className="text-gray-700 mt-2">Más intézmény</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Types */}
+                <div>
+                  <h4 className="font-semibold text-sze-primary mb-3">Divider típusok</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm mb-1 text-gray-600">Solid</p>
+                      <Divider type="solid" />
+                    </div>
+                    <div>
+                      <p className="text-sm mb-1 text-gray-600">Dashed</p>
+                      <Divider type="dashed" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="FieldSet" description="Form mezők csoportosítása">
+              <div className="space-y-4">
+                {/* Basic FieldSet */}
+                <FieldSet legend="Alapvető Információk">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Intézmény Neve
+                      </label>
+                      <InputText 
+                        placeholder="Széchenyi István Egyetem" 
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Város
+                      </label>
+                      <InputText 
+                        placeholder="Győr" 
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </FieldSet>
+
+                {/* FieldSet with Multiple Fields */}
+                <FieldSet legend="Kapcsolat Adatok">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email
+                      </label>
+                      <InputText 
+                        placeholder="contact@sze.hu" 
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Telefon
+                      </label>
+                      <InputText 
+                        placeholder="+36 96 613 000" 
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </FieldSet>
+
+                {/* Toggleable FieldSet */}
+                <FieldSet legend="Haladó Beállítások" toggleable>
+                  <div className="space-y-3">
+                    <label className="inline-flex items-center gap-2">
+                      <Checkbox />
+                      <span className="text-gray-700">Nyilvános profil</span>
+                    </label>
+                    <label className="inline-flex items-center gap-2">
+                      <Checkbox />
+                      <span className="text-gray-700">Hírlevél feliratkozás</span>
+                    </label>
+                  </div>
+                </FieldSet>
+              </div>
+            </Playground>
+
+            <Playground title="Gallery" description="Képgalériai megjelenítés">
+              <div className="space-y-6">
+                {/* Standard 3-column Gallery */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Széchenyi István Egyetem - Kampusz Képek</h4>
+                  <Gallery
+                    items={[
+                      {
+                        src: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=400&h=300&fit=crop",
+                        title: "Campus Épület"
+                      },
+                      {
+                        src: "https://images.unsplash.com/photo-1517457373614-b7152f800fd1?w=400&h=300&fit=crop",
+                        title: "Tantermek"
+                      },
+                      {
+                        src: "https://images.unsplash.com/photo-1516321318423-f06f70504c7a?w=400&h=300&fit=crop",
+                        title: "Könyvtár"
+                      },
+                      {
+                        src: "https://images.unsplash.com/photo-1529307474b04e72a3e0dce8f73abc38?w=400&h=300&fit=crop",
+                        title: "Labór"
+                      },
+                    ]}
+                    columns={3}
+                    gap={4}
+                  />
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="Inplace" description="Szerkeszthető szöveg megjelenítés">
+              <div className="space-y-6">
+                {/* Basic Inplace */}
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-4">Intézmény Neve</h4>
+                  <Inplace
+                    value={inplaceValue}
+                    onChange={setInplaceValue}
+                    onSave={(val) => {
+                      setInplaceValue(val);
+                      console.log("Mentve:", val);
+                    }}
+                    placeholder="Szerkesztéshez kattintson"
+                    label="Intézmény"
+                  />
+                </div>
+
+                {/* Inplace Description */}
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-4">Helyszín/Város</h4>
+                  <Inplace
+                    value={inplaceDescription}
+                    onChange={setInplaceDescription}
+                    onSave={(val) => {
+                      setInplaceDescription(val);
+                      console.log("Helyszín mentve:", val);
+                    }}
+                    placeholder="Kattintson szerkesztéshez"
+                    label="Helyszín"
+                  />
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="Paginator" description="Oldalazás komponens">
+              <Paginator
+                first={paginatorFirst}
+                rows={10}
+                totalRecords={100}
+                rowsPerPageOptions={[5, 10, 20, 50]}
+                onPageChange={(e) => setPaginatorFirst(e.first)}
+              />
+            </Playground>
+
+            <Playground title="Panel" description="Kiterjeszthető panel komponens">
+              <Panel header="Panel Fejléc" toggleable>
+                <p className="text-gray-700">Ez a panel tartalma. Kiterjeszthető és összecsukható.</p>
+              </Panel>
+            </Playground>
+
+            <Playground title="ProgressBar" description="Haladási sáv komponens">
+              <div className="space-y-4">
+                <div>
+                  <ProgressBar value={progressValue} showValue />
+                </div>
+                <div className="flex gap-2">
+                  <Button label="Előrelépés" onClick={() => setProgressValue(Math.min(100, progressValue + 10))} />
+                  <Button label="Visszaállít" onClick={() => setProgressValue(0)} variant="outline" />
+                </div>
+              </div>
+            </Playground>
+
+            <Playground title="ProgressSpinner" description="Betöltési spinner">
+              <div className="flex justify-center py-8">
+                <ProgressSpinner strokeWidth={2} showLabel={true} label="Betöltés..." />
+              </div>
+            </Playground>
+
+            <Playground title="ScrollPanel" description="Görgethető panel">
+              <ScrollPanel height="300px">
+                <div className="space-y-4">
+                  {[...Array(10)].map((_, i) => (
+                    <div key={i} className="p-3 bg-sze-primary-50 rounded border border-sze-primary-200">
+                      <h4 className="font-semibold text-sze-primary">Elem {i + 1}</h4>
+                      <p className="text-sm text-gray-600">Ez egy görgethető panel tartalma.</p>
+                    </div>
+                  ))}
+                </div>
+              </ScrollPanel>
+            </Playground>
+
+            <Playground title="Sidebar" description="Oldalsáv navigáció">
+              <div className="flex gap-3">
+                <Button label="Nyitás" onClick={() => setSidebarVisible(true)} />
+              </div>
+              <Sidebar visible={sidebarVisible} onHide={() => setSidebarVisible(false)}>
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sze-primary">Menü</h3>
+                  <div className="space-y-2">
+                    <div className="px-3 py-2 hover:bg-white rounded cursor-pointer">Elem 1</div>
+                    <div className="px-3 py-2 hover:bg-white rounded cursor-pointer">Elem 2</div>
+                    <div className="px-3 py-2 hover:bg-white rounded cursor-pointer">Elem 3</div>
+                  </div>
+                </div>
+              </Sidebar>
+            </Playground>
+
+            <Playground title="Skeleton" description="Betöltési placeholder">
+              <Skeleton count={5} height="3rem" />
+            </Playground>
+
+            <Playground title="Stepper" description="Multi-step form">
+              <Stepper
+                steps={[
+                  { label: "Lépés 1" },
+                  { label: "Lépés 2" },
+                  { label: "Lépés 3" }
+                ]}
+                activeStep={activeStep}
+                onStepChange={setActiveStep}
+              />
+            </Playground>
+
+            <Playground title="Steps" description="Lépés indikátor">
+              <Steps
+                items={[
+                  { label: "Szállítás" },
+                  { label: "Fizetés" },
+                  { label: "Megerősítés" },
+                  { label: "Kész" }
+                ]}
+                activeIndex={activeStepIndex}
+                onSelect={setActiveStepIndex}
+              />
+            </Playground>
+
+            <Playground title="TabMenu" description="Tab navigáció">
+              <TabMenu
+                items={[
+                  { label: "Otthon", icon: "pi pi-home" },
+                  { label: "Naptár", icon: "pi pi-calendar" },
+                  { label: "Szerkesztés", icon: "pi pi-pencil" }
+                ]}
+                activeIndex={activeTabMenu}
+                onTabChange={(e) => setActiveTabMenu(e.index)}
+              />
+            </Playground>
+
+            <Playground title="Timeline" description="Esemény idővonal">
+              <Timeline
+                value={[
+                  { title: "Projekt Kezdés", description: "Az projekt indítása", date: "2024.01.01", icon: "pi pi-check" },
+                  { title: "Design Fázis", description: "UI/UX tervezés", date: "2024.02.01", icon: "pi pi-pencil" },
+                  { title: "Fejlesztés", description: "Kódolás és implementáció", date: "2024.03.01", icon: "pi pi-code" },
+                  { title: "Testing", description: "QA és tesztelés", date: "2024.04.01", icon: "pi pi-check-circle" }
+                ]}
+              />
+            </Playground>
+
+            <Playground title="Értékelés" description="Csillag értékelés komponens">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Rating value={rating} onChange={(e)=>setRating(e.value)} cancel={false} />
+                  <span className="text-sm text-gray-600">({rating} csillag)</span>
+                </div>
+              </div>
+            </Playground>
           </div>
         )}
 

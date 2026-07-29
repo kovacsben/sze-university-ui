@@ -1,11 +1,16 @@
-import { classNames } from "primereact/utils";
-export const multiStateCheckboxPT = {
-  root: { className: "inline-flex items-center" },
-  box: ({ context }) => ({
-    className: classNames(
-      "w-5 h-5 rounded-md border flex items-center justify-center transition",
-      context.value ? "bg-sze-primary border-sze-primary text-white" : "bg-white border-black/25"
-    ),
-  }),
-  icon: { className: "text-current text-sm" },
+import { RADIUS, BORDER_WIDTH, DURATION } from "../tokens";
+
+export const multistatecheckbox = {
+  root: {
+    className: "inline-flex items-center"
+  },
+  wrapper: {
+    className: `w-5 h-5 ${BORDER_WIDTH.thick} border-sze-primary ${RADIUS.md} bg-white hover:bg-sze-primary-50 transition-colors ${DURATION.normal}`
+  },
+  box: { 
+    className: "w-full h-full flex items-center justify-center" 
+  },
+  icon: { 
+    className: "text-current text-sm" 
+  },
 };

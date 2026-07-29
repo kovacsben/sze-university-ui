@@ -1,11 +1,12 @@
 import { classNames } from "primereact/utils";
+import { RADIUS } from "../tokens";
 
 
 export const editorPT = {
   // külső keret (root)
   root: {
     className:
-      "rounded-2xl border border-black/15 bg-white " +
+      `${RADIUS["2xl"]} border border-black/15 bg-white ` +
       "focus-within:outline-none focus-within:ring-2 focus-within:ring-sze-secondary " +
       "focus-within:ring-offset-2 ring-offset-white dark:ring-offset-neutral-900",
   },

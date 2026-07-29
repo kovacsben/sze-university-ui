@@ -19,5 +19,5 @@ export default function IconButton(props) {
   //   * !p-0: eltávolítjuk az összes padding-ot
   //   * !inline-flex !items-center !justify-center: az ikon középre kerül
   // - props.className: felhasználó által hozzáadott osztályok (pl.: "mr-2")
-  return <PButton {...props} label={null} className={"!w-10 !h-10 rounded-full !p-0 !inline-flex !items-center !justify-center " + (props.className || "")} />;
+  return <PButton {...props} label={null} className={"flex justify-center items-center " + (props.className || "")} />;
 }
