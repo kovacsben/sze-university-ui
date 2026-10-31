@@ -1,5 +1,4 @@
 import React from "react";
-import ExampleList from "./components/ExampleList";
 import { TABS } from "./examples";
 
 /**
@@ -10,7 +9,8 @@ import { TABS } from "./examples";
  * ugyanaz a fájl, és ez a fájl rövid marad.
  *
  * A fülek lustán töltődnek (React.lazy): a fő csomagban csak a váz van, egy fül
- * példái és függőségei (pl. Quill) az első megnyitáskor jönnek le.
+ * példái és függőségei (pl. Quill), valamint a Playground az első megnyitáskor
+ * jönnek le.
  */
 
 const TailwindDemo = React.lazy(() => import("./TailwindDemo"));
@@ -18,7 +18,11 @@ const TailwindDemo = React.lazy(() => import("./TailwindDemo"));
 const TAB_VIEWS = Object.fromEntries(
   TABS.map((t) => [
     t.id,
-    React.lazy(() => t.load().then((m) => ({ default: () => <ExampleList examples={m.default} /> }))),
+    React.lazy(() =>
+      Promise.all([t.load(), import("./components/ExampleList")]).then(([examples, list]) => ({
+        default: () => React.createElement(list.default, { examples: examples.default }),
+      }))
+    ),
   ])
 );
 
