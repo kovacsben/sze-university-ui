@@ -14,7 +14,9 @@ const ScrollPanel = ({
         style={{ width: '100%', height }}
         className="bg-white border border-gray-200 rounded-lg"
       >
-        <div className="p-4 text-gray-700">
+        {/* A belső térköz a PT `content` szekciójában van (theme/pt/scrollpanel.js),
+            hogy a görgethető terület a panel teljes magasságát elfoglalja. */}
+        <div className="text-gray-700">
           {children || content}
         </div>
       </PrimeScrollPanel>

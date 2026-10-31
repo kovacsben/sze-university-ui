@@ -30,5 +30,6 @@ export const radioButtonPT = {
     };
   },
 
-  input: { className: "hidden" },
+  // A natív inputot az index.css rejti el (sr-only) – a "hidden" kivenné a
+  // billentyűzetes tab-sorrendből.
 };

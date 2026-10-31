@@ -17,6 +17,20 @@ const Paginator = ({
     }
   };
 
+  // A `showPageLinks` nem PrimeReact-prop: korábban változatlanul átment a
+  // DOM-ig, ahol React-figyelmeztetést okozott ("React does not recognize the
+  // showPageLinks prop on a DOM element"). Itt a template-be fordítjuk, ami a
+  // tényleges hatása lenne: legyenek-e oldalszám-gombok.
+  const template = [
+    'CurrentPageReport',
+    'FirstPageLink',
+    'PrevPageLink',
+    showPageLinks ? 'PageLinks' : null,
+    'NextPageLink',
+    'LastPageLink',
+    'RowsPerPageDropdown',
+  ].filter(Boolean).join(' ');
+
   return (
     <div className={`paginator-wrapper ${className}`} style={style}>
       <PrimePaginator
@@ -25,10 +39,9 @@ const Paginator = ({
         totalRecords={totalRecords}
         onPageChange={handlePageChange}
         rowsPerPageOptions={rowsPerPageOptions}
-        showPageLinks={showPageLinks}
         className="bg-white border border-gray-200 rounded-lg p-3 text-sm"
-        template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
+        template={template}
+        currentPageReportTemplate="{first}-{last} / {totalRecords} találat"
       />
     </div>
   );

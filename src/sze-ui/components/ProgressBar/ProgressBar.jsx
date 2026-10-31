@@ -28,12 +28,18 @@ const ProgressBar = ({
 
   const progressColor = colorMap[color] || colors.primary;
 
+  // A `displayFormat` nem PrimeReact-prop: korábban változatlanul átment a
+  // DOM-ig, ahol React-figyelmeztetést okozott ("React does not recognize the
+  // displayFormat prop on a DOM element"). A PrimeReact megfelelője a
+  // `displayValueTemplate`, ide fordítjuk le.
+  const displayValueTemplate = displayFormat === 'value' ? (v) => `${v}` : (v) => `${v}%`;
+
   return (
     <div className={`progress-bar-wrapper ${className}`} style={style}>
       <PrimeProgressBar
         value={value}
         showValue={showValue}
-        displayFormat={displayFormat}
+        displayValueTemplate={displayValueTemplate}
         color={progressColor}
         className="bg-gray-200 rounded-full overflow-hidden"
       />

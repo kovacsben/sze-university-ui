@@ -124,9 +124,142 @@
   .sze-inputgroup > *:not(:first-child) { @apply -ml-px; }
 }
 
-@layer components {
-  /* InputNumber gombok vonala ne vastagodjon az input mellett */
-  .p-inputnumber .p-inputnumber-button { @apply leading-none; }
+/* PrimeReact unstyled módban a natív <input> nincs elrejtve, ezért a saját
+   stílusozott doboz mellett látszott a böngésző alap jelölőnégyzete is.
+   Itt kivesszük a layoutból (screen-reader-only technika), de fókuszálható
+   marad, így a billentyűzetes kezelés és a képernyőolvasó nem sérül.
+   Rétegen kívül van, hogy a Tailwind utilities rétegét is felülírja. */
+[data-pc-section="input"][type="checkbox"],
+[data-pc-section="input"][type="radio"],
+[data-pc-section="hiddeninput"],
+[data-pc-section="sronlyaria"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+}
+
+/* A Checkbox/RadioButton/ToggleButton gyökerén a PrimeReact nem tart onClick-et:
+   kizárólag a natív input váltja az állapotot (styled módban egy átlátszó input
+   fekszik a dobozon). Unstyled módban ezt itt pótoljuk, különben a látható doboz
+   csak akkor kattintható, ha épp <label> veszi körül – emiatt nem működött pl. a
+   MultiSelect "összes kijelölése" jelölőnégyzete és a Toggle gomb sem. */
+[data-pc-name="checkbox"],
+[data-pc-name="radiobutton"],
+[data-pc-name="tristatecheckbox"],
+[data-pc-name="togglebutton"] {
+  position: relative;
+}
+
+[data-pc-name="checkbox"] > input[data-pc-section="input"],
+[data-pc-name="radiobutton"] > input[data-pc-section="input"],
+[data-pc-name="tristatecheckbox"] > input[data-pc-section="input"],
+[data-pc-name="togglebutton"] > input[data-pc-section="input"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+  clip: auto;
+  clip-path: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* A fókuszgyűrű így a látható dobozra kerül, nem a rejtett inputra. */
+[data-pc-section="input"]:focus-visible ~ [data-pc-section="box"],
+[data-pc-section="input"]:focus-visible ~ [data-pc-section="wrapper"] {
+  outline: 2px solid var(--color-sze-secondary);
+  outline-offset: 2px;
+}
+
+/* InputNumber: a belső input a globális inputtext PT-t kapja (saját keret +
+   teljes lekerekítés). Rétegen kívül semlegesítjük, hogy a Tailwind utilities
+   réteget is felülírja – így a keretet és a lekerekítést csak a burkoló span
+   adja, és a bal-jobb oldali ív egyforma marad. */
+[data-pc-name="inputnumber"] > input[data-pc-name="inputtext"] {
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+}
+[data-pc-name="inputnumber"] > input[data-pc-name="inputtext"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* InputNumber gombok vonala ne vastagodjon az input mellett */
+[data-pc-section="incrementbutton"],
+[data-pc-section="decrementbutton"] {
+  line-height: 1;
+}
+
+/* ===== INPUT GROUP =====
+   A csoport egyetlen összefüggő kontrollfelület, de a gyerekei (InputText,
+   Dropdown, Button, addon) mind hozzák a saját lekerekítésüket, magasságukat
+   és árnyékukat a PT-jükből. Ezek Tailwind utility-k, tehát azonos
+   specificitásúak bármivel, amit a csoport fűzne hozzájuk - melyik nyer, azt
+   a generált CSS sorrendje döntötte el, nem a szándék. Innen jött a hibás
+   sarok-lekerekítés (a Dropdown jobb oldala 12px, a gomb bal oldala 24px
+   maradt) és a függőleges csúszás (Dropdown h-11 = 44px a többiek h-10 = 40px
+   mellett). Ezért itt, a @layer-eken KÍVÜL írjuk felül őket: a rétegezetlen
+   szabályok a Tailwind utilities rétegét is verik. */
+
+.sze-inputgroup {
+  /* A csoport két szélének íve - értékben a RADIUS["2xl"] (rounded-2xl) párja. */
+  --sze-ig-radius: 1rem;
+}
+
+.sze-inputgroup > * {
+  /* Minden elem a csoport sormagasságát veszi fel, a sajátja helyett. */
+  height: auto;
+  align-self: stretch;
+  /* A lekerekítést kizárólag a két szélső elem kapja (lásd lentebb). */
+  border-radius: 0;
+  /* Saját árnyék nélkül, hogy a csoport egy síkban maradjon. A box-shadow-t
+     nem nullázzuk, mert Tailwind v4-ben abból épül a fókuszgyűrű is - elég a
+     shadow-változót visszaállítani, a ring-változók érintetlenül maradnak. */
+  --tw-shadow: 0 0 #0000;
+}
+
+.sze-inputgroup > :first-child {
+  border-top-left-radius: var(--sze-ig-radius);
+  border-bottom-left-radius: var(--sze-ig-radius);
+}
+
+.sze-inputgroup > :last-child {
+  border-top-right-radius: var(--sze-ig-radius);
+  border-bottom-right-radius: var(--sze-ig-radius);
+}
+
+/* A szomszédos keretek átfedése, hogy ne duplázódjanak 2px-re. */
+.sze-inputgroup > * + * {
+  margin-left: -1px;
+}
+
+/* A fókuszált elem kerete és fókuszgyűrűje a szomszédai fölé kerüljön. */
+.sze-inputgroup > *:focus-within {
+  z-index: 10;
+}
+
+/* A gombok hover-emelése (hover:-translate-y-0.5) és press-effektje
+   (active:translate-y-px) kiemelné az elemet a sorból - csoporton belül
+   kikapcsoljuk. A --tw-translate-* @property inherits:false, így ez nem
+   szivárog le a gyerekekre (pl. a Dropdown nyilára, ami -translate-y-1/2-vel
+   igazít függőlegesen középre). */
+.sze-inputgroup > *:hover,
+.sze-inputgroup > *:active {
+  --tw-translate-y: 0;
 }
 
 /* ===== TOGGLE BUTTON ANIMÁCIÓK ===== */

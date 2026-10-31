@@ -23,7 +23,6 @@ const TabMenu = ({
         model={menuItems}
         activeIndex={activeIndex}
         onTabChange={handleTabChange}
-        className="bg-white border-b-2 border-sze-primary"
       />
     </div>
   );

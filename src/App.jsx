@@ -3,6 +3,125 @@ import TailwindDemo from "./TailwindDemo";
 import Playground from "./components/Playground";
 import { Accordian, Avatar, Breadcrumb, Card, Chip, ConfirmDialog, ConfirmPopUp, Divider, FieldSet, Gallery, Inplace, Menu, Megamenu, Menubar, Message, Messages, Paginator, Panel, ProgressBar, ProgressSpinner, ScrollPanel, Sidebar, Skeleton, Stepper, Steps, TabMenu, TieredMenu, Timeline, TimePicker, Toast, Toolbar, Tooltip, Tree, SplitButton, Button, ButtonGroup, IconButton, InputText, Dropdown, AutoComplete, Checkbox, Dialog, Calendar, Editor, FloatLabel, IconField, InputIcon, InputGroup, InputGroupAddon, InputNumber, InputSwitch, InputOtp, KeyFilteredInput, Knob, Listbox, Mention, MultiSelect, MultiStateCheckbox, Password, RadioButton, Rating, SelectButton, Slider, TreeSelect, TriStateCheckbox, ToggleButton } from "./sze-ui";
 
+/**
+ * A "Fa Komponens" demó adatai: a Széchenyi István Egyetem karai és azok
+ * alapképzési (BSc/BA) szakjai.
+ *
+ * Csak alapképzés szerepel benne - az osztatlan képzések (pl. jogász,
+ * építészmérnök) és a mesterképzések szándékosan kimaradtak.
+ *
+ * A listát karonként tartjuk, és ebből generáljuk a TreeNode-okat (lásd
+ * lentebb), így egy szak felvétele egy sor, nem egy kulcsokkal és ikonokkal
+ * teli objektum.
+ */
+const SZE_KAROK = [
+  {
+    nev: "Audi Hungaria Járműmérnöki Kar",
+    rovid: "AHJK",
+    szakok: [
+      "Járműmérnöki",
+      "Gépészmérnöki",
+      "Mechatronikai mérnöki",
+      "Anyagmérnöki",
+      "Logisztikai mérnöki",
+    ],
+  },
+  {
+    nev: "Gépészmérnöki, Informatikai és Villamosmérnöki Kar",
+    rovid: "GIVK",
+    szakok: [
+      "Mérnökinformatikus",
+      "Programtervező informatikus",
+      "Villamosmérnöki",
+      "Gazdaságinformatikus",
+    ],
+  },
+  {
+    nev: "Építész-, Építő- és Közlekedésmérnöki Kar",
+    rovid: "ÉÉKK",
+    szakok: ["Építőmérnöki", "Közlekedésmérnöki"],
+  },
+  {
+    nev: "Kautz Gyula Gazdaságtudományi Kar",
+    rovid: "KGK",
+    szakok: [
+      "Gazdálkodási és menedzsment",
+      "Kereskedelem és marketing",
+      "Nemzetközi gazdálkodás",
+      "Pénzügy és számvitel",
+      "Turizmus-vendéglátás",
+    ],
+  },
+  {
+    nev: "Deák Ferenc Állam- és Jogtudományi Kar",
+    rovid: "DFÁJK",
+    szakok: ["Nemzetközi tanulmányok", "Munkaügyi és társadalombiztosítási igazgatási"],
+  },
+  {
+    nev: "Apáczai Csere János Pedagógiai, Humán- és Társadalomtudományi Kar",
+    rovid: "AK",
+    szakok: [
+      "Óvodapedagógus",
+      "Tanító",
+      "Gyógypedagógia",
+      "Szociálpedagógia",
+      "Közösségszervezés",
+    ],
+  },
+  {
+    nev: "Egészség- és Sporttudományi Kar",
+    rovid: "ESK",
+    szakok: [
+      "Ápolás és betegellátás",
+      "Egészségügyi gondozás és prevenció",
+      "Sport- és rekreációszervezés",
+      "Szociális munka",
+    ],
+  },
+  {
+    nev: "Művészeti Kar",
+    rovid: "MK",
+    szakok: ["Előadó-művészet", "Alkotóművészet és muzeológia"],
+  },
+];
+
+/** A karlistából PrimeReact TreeNode-fát épít: egyetem > kar > szak. */
+const SZE_FA = [
+  {
+    key: "0",
+    label: "Széchenyi István Egyetem",
+    data: "Győr",
+    icon: "pi pi-fw pi-building",
+    children: SZE_KAROK.map((kar, i) => ({
+      key: `0-${i}`,
+      label: kar.nev,
+      data: kar.rovid,
+      icon: "pi pi-fw pi-folder",
+      children: kar.szakok.map((szak, j) => ({
+        key: `0-${i}-${j}`,
+        label: szak,
+        data: kar.rovid,
+        icon: "pi pi-fw pi-file",
+      })),
+    })),
+  },
+];
+
+/**
+ * Összegyűjti minden olyan csomópont kulcsát, amelynek van gyereke.
+ * A demó így nyitottan indul - zárt gyökérrel nem látszana, mit tud a
+ * komponens. A fából származtatjuk, hogy új kar felvételekor is stimmeljen.
+ */
+function expandableKeys(nodes, acc = {}) {
+  for (const node of nodes) {
+    if (node.children?.length) {
+      acc[node.key] = true;
+      expandableKeys(node.children, acc);
+    }
+  }
+  return acc;
+}
+
 export default function App() {
   // ===== STATE MANAGEMENT =====
   const [visible, setVisible] = React.useState(false);
@@ -22,7 +141,11 @@ export default function App() {
   const [activeTab, setActiveTab] = React.useState("buttons");
   const [sidebarVisible, setSidebarVisible] = React.useState(false);
   const [paginatorFirst, setPaginatorFirst] = React.useState(0);
-  const [expandedKeys, setExpandedKeys] = React.useState({});
+  // A lapméretet is állapotban tartjuk, különben a "sor/oldal" legördülő
+  // kiválasztása nem csinál semmit (a rows fix érték maradna).
+  const [paginatorRows, setPaginatorRows] = React.useState(10);
+  // A fa demó nyitottan indul, hogy a karok és a szakok is látszódjanak.
+  const [expandedKeys, setExpandedKeys] = React.useState(() => expandableKeys(SZE_FA));
   const [progressValue, setProgressValue] = React.useState(45);
   const [selectedTime, setSelectedTime] = React.useState(null);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -356,7 +479,7 @@ export default function App() {
             </Playground>
 
             <Playground title="Jelölőnégyzet" description="Logikai értékek választása">
-              <div className="space-y-2">
+              <div className="flex flex-col items-start gap-2">
                 <label className="inline-flex items-center gap-2">
                   <Checkbox />
                   <span>Fogadok el</span>
@@ -369,7 +492,7 @@ export default function App() {
             </Playground>
 
             <Playground title="Rádiógomb" description="Kizárólagos választás">
-              <div className="space-y-2">
+              <div className="flex flex-col items-start gap-2">
                 <label className="inline-flex items-center gap-2">
                   <RadioButton inputId="opt1" name="options" value="a" onChange={(e)=>setRB(e.value)} checked={RB==="a"} />
                   <span>Opció A</span>
@@ -386,7 +509,14 @@ export default function App() {
             </Playground>
 
             <Playground title="Jogi Statusz Jelölőnégyzet (Multi-State)" description="Három állapotú jelölőnégyzet">
-              <MultiStateCheckbox />
+              <MultiStateCheckbox
+                options={[
+                  { value: "elfogadva", icon: "pi pi-check" },
+                  { value: "elutasitva", icon: "pi pi-times" },
+                  { value: "folyamatban", icon: "pi pi-clock" },
+                ]}
+                optionValue="value"
+              />
             </Playground>
 
             <Playground title="Háromállapotú Jelölőnégyzet" description="Háromállapotú kiválasztás">
@@ -403,32 +533,7 @@ export default function App() {
 
             <Playground title="Fa Komponens" description="Fa szerkezetű adatok megjelenítésére">
               <Tree
-                value={[
-                  {
-                    key: "0",
-                    label: "Széchenyi István Egyetem",
-                    data: "SZE",
-                    icon: "pi pi-fw pi-folder",
-                    children: [
-                      {
-                        key: "0-0",
-                        label: "Mérnöki Kar",
-                        data: "Engineering",
-                        icon: "pi pi-fw pi-folder",
-                        children: [
-                          { key: "0-0-0", label: "Informatika", data: "IT", icon: "pi pi-fw pi-file" },
-                          { key: "0-0-1", label: "Villamosmérnöki", data: "EEE", icon: "pi pi-fw pi-file" }
-                        ]
-                      },
-                      {
-                        key: "0-1",
-                        label: "Gazdaságtudományi Kar",
-                        data: "Business",
-                        icon: "pi pi-fw pi-folder"
-                      }
-                    ]
-                  }
-                ]}
+                value={SZE_FA}
                 expandedKeys={expandedKeys}
                 onToggle={(e) => setExpandedKeys(e.value)}
               />
@@ -589,12 +694,10 @@ export default function App() {
               <div className="space-y-6">
                 {/* Info PopUp */}
                 <div className="flex justify-center pt-12 pb-12 bg-gray-50 rounded-lg relative">
-                  <button
+                  <Button
+                    label="Info PopUp"
                     onClick={() => setPopupInfoVisible(!popupInfoVisible)}
-                    className="px-4 py-2 bg-sze-primary text-white rounded-lg hover:bg-sze-primary-900 transition-colors"
-                  >
-                    Info PopUp
-                  </button>
+                  />
                   {popupInfoVisible && (
                     <ConfirmPopUp
                       visible={popupInfoVisible}
@@ -615,12 +718,11 @@ export default function App() {
 
                 {/* Warning PopUp */}
                 <div className="flex justify-center pt-12 pb-12 bg-gray-50 rounded-lg relative">
-                  <button
+                  <Button
+                    label="Figyelem PopUp"
+                    severity="warning"
                     onClick={() => setPopupWarningVisible(!popupWarningVisible)}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
-                  >
-                    Figyelem PopUp
-                  </button>
+                  />
                   {popupWarningVisible && (
                     <ConfirmPopUp
                       visible={popupWarningVisible}
@@ -641,12 +743,11 @@ export default function App() {
 
                 {/* Success PopUp */}
                 <div className="flex justify-center pt-12 pb-12 bg-gray-50 rounded-lg relative">
-                  <button
+                  <Button
+                    label="Sikeres PopUp"
+                    severity="success"
                     onClick={() => setPopupSuccessVisible(!popupSuccessVisible)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    Sikeres PopUp
-                  </button>
+                  />
                   {popupSuccessVisible && (
                     <ConfirmPopUp
                       visible={popupSuccessVisible}
@@ -908,45 +1009,41 @@ export default function App() {
                 {/* Message List Demo */}
                 <div>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <button
+                    <Button
+                      label="Info Hozzáadása"
+                      severity="secondary"
                       onClick={() => {
                         setMessages([
                           ...messages,
                           { severity: 'info', title: 'Info', text: 'Ez egy információs üzenet.' }
                         ]);
                       }}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium"
-                    >
-                      Info Hozzáadása
-                    </button>
-                    <button
+                    />
+                    <Button
+                      label="Success Hozzáadása"
+                      severity="success"
                       onClick={() => {
                         setMessages([
                           ...messages,
                           { severity: 'success', title: 'Siker', text: 'A műveletet sikeresen végrehajtva.' }
                         ]);
                       }}
-                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 text-sm font-medium"
-                    >
-                      Success Hozzáadása
-                    </button>
-                    <button
+                    />
+                    <Button
+                      label="Error Hozzáadása"
+                      severity="danger"
                       onClick={() => {
                         setMessages([
                           ...messages,
                           { severity: 'error', title: 'Hiba', text: 'Valami hiba történt!' }
                         ]);
                       }}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
-                    >
-                      Error Hozzáadása
-                    </button>
-                    <button
+                    />
+                    <Button
+                      label="Összes Törlése"
+                      outlined
                       onClick={() => setMessages([])}
-                      className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm font-medium"
-                    >
-                      Összes Törlése
-                    </button>
+                    />
                   </div>
 
                   {/* Messages Container */}
@@ -968,15 +1065,16 @@ export default function App() {
                             )}
                             <p className="text-sm">{msg.text}</p>
                           </div>
-                          <button
+                          <IconButton
+                            icon="pi pi-times"
+                            text
+                            size="small"
+                            className="shrink-0"
                             onClick={() => {
                               const newMessages = messages.filter((_, i) => i !== index);
                               setMessages(newMessages);
                             }}
-                            className="flex-shrink-0 p-1 hover:opacity-70 transition-opacity duration-200"
-                          >
-                            <i className="pi pi-times text-lg" />
-                          </button>
+                          />
                         </div>
                       ))}
                     </div>
@@ -1254,7 +1352,7 @@ export default function App() {
 
                 {/* Toggleable FieldSet */}
                 <FieldSet legend="Haladó Beállítások" toggleable>
-                  <div className="space-y-3">
+                  <div className="flex flex-col items-start gap-3">
                     <label className="inline-flex items-center gap-2">
                       <Checkbox />
                       <span className="text-gray-700">Nyilvános profil</span>
@@ -1280,16 +1378,16 @@ export default function App() {
                         title: "Campus Épület"
                       },
                       {
-                        src: "https://images.unsplash.com/photo-1517457373614-b7152f800fd1?w=400&h=300&fit=crop",
+                        src: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=400&h=300&fit=crop",
                         title: "Tantermek"
                       },
                       {
-                        src: "https://images.unsplash.com/photo-1516321318423-f06f70504c7a?w=400&h=300&fit=crop",
+                        src: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=400&h=300&fit=crop",
                         title: "Könyvtár"
                       },
                       {
-                        src: "https://images.unsplash.com/photo-1529307474b04e72a3e0dce8f73abc38?w=400&h=300&fit=crop",
-                        title: "Labór"
+                        src: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
+                        title: "Labor"
                       },
                     ]}
                     columns={3}
@@ -1336,10 +1434,13 @@ export default function App() {
             <Playground title="Paginator" description="Oldalazás komponens">
               <Paginator
                 first={paginatorFirst}
-                rows={10}
+                rows={paginatorRows}
                 totalRecords={100}
                 rowsPerPageOptions={[5, 10, 20, 50]}
-                onPageChange={(e) => setPaginatorFirst(e.first)}
+                onPageChange={(e) => {
+                  setPaginatorFirst(e.first);
+                  setPaginatorRows(e.rows);
+                }}
               />
             </Playground>
 

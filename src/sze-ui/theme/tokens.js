@@ -23,6 +23,18 @@ export const RADIUS = {
   full: "rounded-full",
 };
 
+/** Csak jobb oldali lekerekítés – összetett kontrollokhoz (pl. InputNumber gombokkal). */
+export const RADIUS_R = {
+  none: "rounded-r-none",
+  sm: "rounded-r-sm",
+  md: "rounded-r-md",
+  lg: "rounded-r-lg",
+  xl: "rounded-r-xl",
+  "2xl": "rounded-r-2xl",
+  "3xl": "rounded-r-3xl",
+  full: "rounded-r-full",
+};
+
 export const CONTROL_SIZE = {
   sm: { height: "h-9", padding: "px-3", text: "text-sm" },
   md: { height: "h-10", padding: "px-4", text: "text-sm" },

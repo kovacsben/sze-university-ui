@@ -1,3 +1,5 @@
+import { Button } from "../Button";
+
 /**
  * SZE ConfirmDialog - Egyedi Confirm Dialog komponens
  * 
@@ -49,6 +51,12 @@ export default function ConfirmDialog({
     return baseClasses[severity] || baseClasses.info;
   };
 
+  // A Button severity-szókészletében nincs "info": az az alapértelmezett
+  // (primary) gomb. A többi név egy az egyben megfelel egymásnak.
+  // (A korábbi kód a "success"-t is primary-ként rajzolta - most zöld lesz,
+  // ahogy a ConfirmPopUp-ban is.)
+  const buttonSeverity = severity === "info" ? undefined : severity;
+
   return (
     <>
       {/* BACKDROP */}
@@ -74,25 +82,11 @@ export default function ConfirmDialog({
           </div>
 
           {/* FOOTER */}
+          {/* Gombok - az alap Button komponenssel, hogy a dialógus gombjai
+              ugyanúgy nézzenek ki, mint a felület összes többi gombja. */}
           <div className="border-t px-6 py-4 flex justify-end gap-2 bg-gray-50">
-            <button
-              onClick={onCancel}
-              className="px-4 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sze-secondary"
-            >
-              {cancelLabel}
-            </button>
-            <button
-              onClick={onConfirm}
-              className={`px-4 py-2 rounded-lg font-medium text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sze-secondary ${
-                severity === "danger"
-                  ? "bg-red-600 hover:bg-red-700"
-                  : severity === "warning"
-                  ? "bg-yellow-600 hover:bg-yellow-700"
-                  : "bg-sze-primary hover:bg-sze-primary-900"
-              }`}
-            >
-              {confirmLabel}
-            </button>
+            <Button label={cancelLabel} outlined onClick={onCancel} />
+            <Button label={confirmLabel} severity={buttonSeverity} onClick={onConfirm} />
           </div>
         </div>
       </div>

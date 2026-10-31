@@ -1,3 +1,5 @@
+import { Button } from "../Button";
+
 /**
  * SZE ConfirmPopUp - Egyedi ConfirmPopUp komponens
  * 
@@ -82,6 +84,10 @@ export default function ConfirmPopUp({
     return colors[severity] || colors.info;
   };
 
+  // A Button severity-szókészletében nincs "info": az az alapértelmezett
+  // (primary) gomb. A többi név egy az egyben megfelel egymásnak.
+  const buttonSeverity = severity === "info" ? undefined : severity;
+
   return (
     <div className={`absolute ${getPositionClasses()} z-50 animate-fadeIn`}>
       {/* Arrow */}
@@ -95,28 +101,11 @@ export default function ConfirmPopUp({
           <p className="text-sm text-gray-700 leading-relaxed">{message}</p>
         </div>
 
-        {/* Gombok */}
+        {/* Gombok - az alap Button komponenssel, hogy a popup gombjai
+            ugyanúgy nézzenek ki, mint a felület összes többi gombja. */}
         <div className="flex gap-2 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-3 py-1.5 rounded text-sm font-medium background-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            {cancelLabel}
-          </button>
-          <button
-            onClick={onConfirm}
-            className={`px-3 py-1.5 rounded text-sm font-medium text-white transition-colors ${
-              severity === "danger"
-                ? "bg-red-600 hover:bg-red-700"
-                : severity === "warning"
-                ? "bg-yellow-600 hover:bg-yellow-700"
-                : severity === "success"
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-sze-primary hover:bg-sze-primary-900"
-            }`}
-          >
-            {confirmLabel}
-          </button>
+          <Button label={cancelLabel} outlined size="small" onClick={onCancel} />
+          <Button label={confirmLabel} severity={buttonSeverity} size="small" onClick={onConfirm} />
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Menu as PrimeMenu } from 'primereact/menu';
+import { Button } from '../Button';
 
 const Menu = ({
   items = [],
@@ -12,7 +13,6 @@ const Menu = ({
   severity = 'primary',
 }) => {
   const menuRef = React.useRef(null);
-  const buttonRef = React.useRef(null);
 
   const handleItemClick = (item) => {
     if (onItemClick) {
@@ -30,27 +30,23 @@ const Menu = ({
     command: () => handleItemClick(item),
   }));
 
-  const severityStyles = {
-    primary: 'bg-sze-primary text-white hover:bg-sze-primary-700',
-    secondary: 'bg-sze-secondary text-white hover:bg-sze-secondary-700',
-    success: 'bg-green-600 text-white hover:bg-green-700',
-    warning: 'bg-yellow-600 text-white hover:bg-yellow-700',
-    danger: 'bg-red-600 text-white hover:bg-red-700',
-    info: 'bg-blue-600 text-white hover:bg-blue-700',
-  }[severity] || 'bg-sze-primary text-white hover:bg-sze-primary-700';
+  // A nyitógomb az alap Button komponens, hogy ugyanúgy nézzen ki, mint a
+  // felület összes többi gombja. A Button severity-szókészletében a
+  // "primary" az alapértelmezett (nincs külön neve), "info" pedig nincs -
+  // mindkettő a sima primary gombot jelenti.
+  const buttonSeverity =
+    severity === 'primary' || severity === 'info' ? undefined : severity;
 
   return (
     <div className={`menu-wrapper ${className}`}>
       {popup ? (
         <>
-          <button
-            ref={buttonRef}
+          <Button
+            icon={icon}
+            label={label}
+            severity={buttonSeverity}
             onClick={(e) => menuRef.current?.toggle(e)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 ${severityStyles}`}
-          >
-            <i className={icon} />
-            {label}
-          </button>
+          />
           <PrimeMenu
             ref={menuRef}
             popup

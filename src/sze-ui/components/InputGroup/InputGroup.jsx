@@ -1,33 +1,27 @@
-import React from "react";
-
+/**
+ * InputGroup - több kontroll (addon, input, dropdown, gomb) egyetlen,
+ * összefüggő felületté fűzve.
+ *
+ * A gyerekek geometriáját (lekerekítés, magasság, keret-átfedés, z-index)
+ * szándékosan NEM itt, cloneElement-tel hozzáfűzött Tailwind osztályokkal
+ * állítjuk be: azok azonos specificitásúak a gyerekek saját PT-osztályaival
+ * (pl. az InputText `rounded-3xl`-je vagy a Dropdown `h-11`-e), így a
+ * generált CSS sorrendje döntötte el, melyik nyer - nem a szándék. Emiatt
+ * csúsztak el az elemek. A szabályok a `.sze-inputgroup` osztályra szűkítve,
+ * a @layer-eken kívül élnek: src/index.css "INPUT GROUP" szakasz.
+ *
+ * `flex` (nem `inline-flex`): a csoport blokkszintű form-vezérlő, így egymás
+ * alá kerülnek a csoportok, és a `space-y-*` is hat rájuk a szülőben.
+ * `min-h-10`: a közös sormagasság, amihez minden gyerek hozzáigazodik -
+ * `className="h-14"`-gyel felülírható, mert a min-height nem ütközik vele.
+ */
 export default function InputGroup({ className, children, ...rest }) {
-  const items = React.Children.toArray(children);
-
-  const enhanced = items.map((child, idx) => {
-    if (!React.isValidElement(child)) return child;
-    const isFirst = idx === 0;
-    const isLast  = idx === items.length - 1;
-
-    const posCls = isFirst ? "rounded-l-2xl"
-                 : isLast  ? "rounded-r-2xl"
-                 :           "rounded-none";
-
-    const mergeCls = [
-      child.props.className || "",
-      posCls,
-      !isFirst && "-ml-px",
-      "focus-within:z-10 focus:z-10",
-    ].filter(Boolean).join(" ");
-
-    return React.cloneElement(child, { className: mergeCls });
-  });
-
   return (
     <div
       {...rest}
-      className={["sze-inputgroup inline-flex items-stretch", className || ""].join(" ").trim()}
+      className={["sze-inputgroup flex items-stretch min-h-10", className || ""].join(" ").trim()}
     >
-      {enhanced}
+      {children}
     </div>
   );
 }
