@@ -14,6 +14,13 @@ export default defineConfig({
     ],
   },
   server: { hmr: { overlay: true } },
+  // Az élő szerkesztő függőségei csak dinamikus importtal / az iframe-belépőből
+  // érhetők el, ezért a dev szerver induláskor nem fedezné fel őket: az első
+  // "Kód szerkesztése" kattintáskor újraoptimalizálna és újratöltené az oldalt.
+  optimizeDeps: {
+    entries: ['index.html', 'preview.html'],
+    include: ['sucrase', '@uiw/react-codemirror', '@codemirror/lang-javascript', '@codemirror/view', '@tailwindcss/browser'],
+  },
   build: {
     rollupOptions: {
       // Két belépő: a bemutató oldal és az élő szerkesztő iframe-előnézete.
