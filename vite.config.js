@@ -14,4 +14,13 @@ export default defineConfig({
     ],
   },
   server: { hmr: { overlay: true } },
+  build: {
+    rollupOptions: {
+      // Két belépő: a bemutató oldal és az élő szerkesztő iframe-előnézete.
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        preview: fileURLToPath(new URL('./preview.html', import.meta.url)),
+      },
+    },
+  },
 });
