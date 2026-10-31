@@ -8,7 +8,8 @@ mechanizmusán keresztül.
 
 A dokumentum célja, hogy egy későbbi munkamenetben (pl. a szakdolgozat írásakor) kontextust adjon:
 mi van a projektben, hogyan épül fel, és milyen döntések állnak mögötte. Az állapot
-2026-10-07-i; a kódban a megjegyzések és az azonosítók magyarul vannak.
+2026-10-07-i, az 5. pont (élő Playground) 2026-11-01-i; a kódban a megjegyzések és az
+azonosítók magyarul vannak.
 
 > **Kitöltendő (a repóból nem derül ki):** a szakdolgozat pontos címe, a konzulens neve, a
 > hivatalos célkitűzés és a beadási határidő. Szakdolgozati szöveg írásakor ezeket kérdezd meg.
@@ -26,6 +27,7 @@ mi van a projektben, hogyan épül fel, és milyen döntések állnak mögötte.
 | CSS pipeline | PostCSS + `@tailwindcss/postcss` + autoprefixer | – | Tailwind feldolgozás |
 | Rich text | Quill | 2.0.3 | a PrimeReact `Editor` motorja |
 | Build / dev szerver | Vite + `@vitejs/plugin-react` | 7.1.2 | HMR, production build |
+| Élő szerkesztő (csak demó) | sucrase / CodeMirror 6 (`@uiw/react-codemirror`) / `@tailwindcss/browser` | 3.35 / 4.25 / 4.1.12 | futásidejű JSX-fordítás, kódszerkesztő, Tailwind az iframe-előnézetben (lásd 5.) |
 | Lint | ESLint 9 (flat config) + react-hooks + react-refresh | – | kódminőség |
 | Betűtípus | Montserrat (Google Fonts) | – | címsor- és szövegtípus |
 
@@ -41,7 +43,9 @@ npm run preview   # a build kiszolgálása
 npm run lint      # ESLint
 ```
 
-A build Windows alatt lefut (2026-10-07-én ellenőrizve). A fő JS-csomag kb. 1,06 MB (gzip: kb. 274 kB), ezért a Vite figyelmeztet az 500 kB fölötti chunkra.
+A build Windows alatt lefut, és az importútvonalak kis- és nagybetűre is pontosak, így Linuxon
+is lefut (2026-11-01-én ellenőrizve). A fülek lusta chunkok; az induló JS kb. 345 kB (gzip kb.
+101 kB), korábban 1,06 MB (gzip kb. 274 kB) volt. Két HTML-belépő van: `index.html` és `preview.html`.
 
 ---
 
@@ -50,7 +54,8 @@ A build Windows alatt lefut (2026-10-07-én ellenőrizve). A fő JS-csomag kb. 1
 ```
 sze-university-ui/
 ├─ index.html                 # Vite belépő HTML (#root)
-├─ vite.config.js             # react plugin, '@' -> /src alias
+├─ preview.html               # 2. belépő: az élő szerkesztő iframe-előnézete
+├─ vite.config.js             # react plugin, '@' és 'sze-ui' alias, 2 belépő, optimizeDeps
 ├─ tailwind.config.js         # csak content-útvonalak; a tokenek az index.css @theme-ben vannak
 ├─ postcss.config.js
 ├─ eslint.config.js
@@ -61,12 +66,20 @@ sze-university-ui/
 └─ src/
    ├─ main.jsx                # belépési pont: <SzeProvider><App/></SzeProvider>, CSS importok
    ├─ index.css               # Tailwind import, @theme tokenek, globális javítások (lásd 4.4)
-   ├─ App.jsx                 # a bemutató alkalmazás (~1570 sor, 7 fül)
+   ├─ App.jsx                 # a bemutató váza: fejléc, lusta fülek, lábléc (~110 sor)
    ├─ App.css                 # Vite-sablonból maradt, nincs használatban
    ├─ TailwindDemo.jsx        # interaktív Tailwind-osztály oktatóoldal (8 kategória)
+   ├─ examples/               # CSAK demó: 64 példa, példánként egy .jsx (lásd 5.)
+   │  ├─ index.js             # fülregiszter (TABS, lusta load)
+   │  ├─ defineExamples.js    # modul + ?raw párosítás, dev ellenőrzések
+   │  ├─ adatok.js, controls.js
+   │  └─ <fül>/index.js + <Név>.jsx
+   ├─ preview/                # CSAK demó: az iframe-előnézet appja (main.jsx, PreviewApp.jsx)
    ├─ components/             # CSAK a demóhoz tartozik, nem része a könyvtárnak
-   │  ├─ Playground.jsx       # bemutató kártya élő prop-vezérlőkkel és kódnézettel
-   │  └─ CodeBlock.jsx        # függőség nélküli, regex-alapú JSX szintaxiskiemelő
+   │  ├─ Playground.jsx       # élő, szerkeszthető bemutató kártya
+   │  ├─ ExampleList.jsx      # egy fül kártyái
+   │  ├─ CodeBlock.jsx        # függőség nélküli JSX-kiemelő (a szerkesztő fallbackja)
+   │  └─ live/                # fordító, hibakezelés, szerkesztő, iframe-protokoll
    └─ sze-ui/                 # <-- MAGA A KOMPONENSKÖNYVTÁR
       ├─ index.js             # publikus barrel: SzeProvider, összes komponens, szePT
       ├─ provider/
@@ -300,35 +313,100 @@ A PT oszlop a `theme/pt/` alatti fájlt jelöli (ha van és érvényesül).
 
 ## 5. A bemutató alkalmazás
 
-### `src/App.jsx`
+### `src/App.jsx` (~110 sor)
 - Fejléc: „SZE UI Component Library”, alatta „Széchényi István Egyetem • PrimeReact + Tailwind CSS”.
-- **7 fül** (`activeTab` state): Gombok, Input Mezők, Kiválasztás, Dátum & Idő, Haladó
-  (dialógusok, menük, üzenetek, toast, tooltip), Layout & Forma (accordion, card, chip,
-  galéria, paginator, panel, stepper, timeline…), Tailwind Demo.
-- Minden példa egy `Playground` kártyában van.
-- Valós egyetemi adatok: a **`SZE_KAROK`** tömb a karokat és alapszakjaikat tartalmazza
-  (AHJK, GIVK, ÉÉKK, KGK, DFÁJK, AK, ESK, MK); ebből generálódik a `Tree` demó
-  (egyetem → kar → szak), az `expandableKeys()` pedig nyitott állapotban indítja.
-- További magyar mintaadatok: városok (Győr, Budapest, Pécs), breadcrumb útvonal, accordion
-  szövegek az egyetemről.
+  Landmarkok: `<header>`, `<main>` (benne `<nav>` a fülgombokkal, `aria-pressed`), `<footer>`.
+- **7 fül** (`activeTab` state): Gombok, Input Mezők, Kiválasztás, Dátum & Idő, Haladó,
+  Layout & Forma, Tailwind Demo. A fülek listája az `src/examples/index.js`-ben (`TABS`) van.
+- Minden fül **lusta chunk** (`React.lazy`): a fül példái, a `Playground` és a csak ott használt
+  függőségek (pl. Quill) az első megnyitáskor töltődnek. Az alapértelmezett fül letöltése már a
+  fő csomag kiértékelésekor indul.
 
-### `src/components/Playground.jsx`
-Két üzemmód:
-- **statikus:** `children` renderelése, opcionális `code` stringgel („Kód megjelenítése” gomb);
-- **interaktív:** `controls` (`[{ prop, label, options, default }]`) + `render(values)` +
-  `code(values)`: a vezérlők (SZE `SelectButton`-ök) élőben módosítják a komponens propjait
-  (pl. `radius` none…full, `size` small/normal/large), a kódnézet szinkronban frissül.
-  Interaktív playground van 8 helyen: Gomb variációk, Szöveg input, Lenyitható lista
-  (Dropdown), Dialog, Message, Avatar, Card, Chip.
+### `src/examples/` – a példák (egyetlen igazságforrás)
+- **Példánként egy `.jsx` fájl**, összesen 64: `src/examples/<fül>/<Név>.jsx`
+  (`buttons` 8, `inputs` 10, `selection` 10, `datetime` 4, `advanced` 11, `layout` 21). Mindegyik
+  önálló modul `export default function Pelda()`-val, és `import { … } from "sze-ui"` formában
+  hivatkozik a könyvtárra (Vite-alias a `vite.config.js`-ben, pontos egyezésű regex).
+- A fül `index.js`-e `import.meta.glob`-bal kétszer tölti be ugyanazokat a fájlokat: modulként
+  (a Vite fordítja → `Component`) és `?raw`-ként (a fájl szövege → `code`). **A megjelenített és a
+  futó kód ugyanannak a fájlnak a tartalma.** A `META` tömb adja a sorrendet, a címet, a leírást
+  és a vezérlőket; a `defineExamples.js` párosít, normalizálja a CRLF-et, és dev módban
+  figyelmeztet a hiányzó fájlra vagy META-ra, illetve ha a vezérlők alapértékei eltérnek a fájl
+  literáljaitól.
+- `adatok.js`: `SZE_KAROK` (karok és alapszakok: AHJK, GIVK, ÉÉKK, KGK, DFÁJK, AK, ESK, MK),
+  `SZE_FA` és `expandableKeys()` – ebből épül a Fa példa (egyetem → kar → szak, nyitottan indul).
+  `controls.js`: `radiusControl(default)`, `sizeControl(options, default)`.
+- Az állapot a példákban helyben van (`useState`/`useRef`); a Toast példa ref-en át valódi
+  értesítést mutat.
+
+### `src/components/Playground.jsx` – élő, szerkeszthető kártya
+API: `<Playground id title description code Component controls />` (az `ExampleList` adja át a
+`defineExamples` kimenetét).
+- **Eszközök minden kártyán:** „Kód szerkesztése” (`aria-expanded`/`aria-controls`),
+  „Kód másolása” (Clipboard API + `textarea` fallback), „Visszaállítás” (ha a kód eltér az
+  eredetitől), „módosítva” jelvény (kézi szerkesztésnél). Bejelentések `aria-live` régióban.
+- **Osztott nézet:** balra CodeMirror 6 (JSX), jobbra az iframe-előnézet; `lg` alatt egymás alatt.
+  Gépelés után 300 ms debounce. Előnézeti szélesség: Kitöltés (alap, egymás mellett) / Mobil
+  375 px / Tablet 768 px / Asztali (teljes kártyaszélesség). A Tablet és az Asztali egymás alá
+  rendez, mert fél szélességen az `md:`/`lg:` töréspontok nem érvényesülnének.
+- **Rétegzett előnézet** (teljesítmény): eredeti kód → az előre fordított `Component` inline;
+  csak vezérlő írta át → `LiveInline` (lusta sucrase) inline; kézi szerkesztés vagy nyitott
+  szerkesztő → `PreviewFrame` (iframe).
+- **Vezérlők** (8 kártya: Gomb variációk, Szöveg input, Lenyitható lista, Dialog, Message, Avatar,
+  Card, Chip): a SelectButton-ök a kódstringet írják át – az `applyControls()` a vezérelt prop
+  `prop="…"` literálját cseréli a kód minden előfordulásában, így kézi szerkesztés után is működik.
+- A szerkesztések fülváltáskor megmaradnak (modulszintű `Map`), oldalújratöltéskor nem.
+- Visszaállításkor és vezérlőváltáskor a szerkesztő újramountol (`key`): a `@uiw/react-codemirror`
+  gépelés után egy időzítőig visszatartja a külső `value`-frissítést, ami a böngésző
+  időzítő-korlátozása miatt jóval tovább tarthat 200 ms-nál.
+
+### `src/components/live/` – a futtatómag
+| Fájl | Szerep |
+|---|---|
+| `compile.js` | sucrase (`jsx` + `imports`) → `new Function`; `require`-shim: `react`, `sze-ui`, `../adatok`. Lusta. |
+| `formatError.js`, `LiveErrorView.jsx` | magyar hibaüzenet: típus (szintaktikai / hiányzó modul / hiányzó export / futási), sor (szintaktikainál oszlop is), kódrészlet, az eredeti üzenet lenyitható részben |
+| `sourceLocation.js` | futási hiba sora a stack `sze-pelda.jsx:L` mintájából (V8: −2 sor eltolás); külön modul, hogy a boundary ne húzza be a fordítót |
+| `ExampleErrorBoundary.jsx` | példánkénti error boundary, kódváltozáskor újrapróbál |
+| `LiveInline.jsx` | vezérlővel átírt kód inline futtatása |
+| `LiveEditor.jsx` | CodeMirror (lusta chunk); `aria-label`, `aria-describedby`; Tab behúz, **Esc, majd Tab** kilép (a CodeMirror beépített viselkedése) |
+| `PreviewFrame.jsx`, `previewProtocol.js` | iframe + `postMessage` (`ready`/`height`/`status` ↔ `render`), forrás- és origin-ellenőrzés, automatikus magasság, `VIEWPORTS` |
+
+### Tailwind az előnézetben: `preview.html` + `src/preview/`
+A szerkesztőben beírt új osztályokhoz build közben nem készül CSS (a Tailwind v4 statikusan
+szkennel). Megoldás: az előnézet egy **külön Vite-belépő** (`preview.html` → `src/preview/main.jsx`
++ `PreviewApp.jsx`) iframe-ben, ahol a `@tailwindcss/browser` (a `tailwindcss`-szel egyező
+4.1.12-es verzió) futásidőben generálja a hiányzó utility-ket.
+- A tokenek egyetlen forrásból jönnek: az `index.css?raw` `@theme` blokkját kivágjuk, és
+  `<style type="text/tailwindcss">`-ként injektáljuk; csak a `tailwindcss/theme` és a
+  `tailwindcss/utilities` réteg készül (preflight nélkül, hogy ne duplikálódjon). A lefordított
+  `index.css` is betöltődik (rétegen kívüli javítások, base/components réteg).
+- Miért iframe: a böngészős fordító a teljes DOM-ot figyeli és CSS-t injektál – a főoldalon a
+  könyvtár kaszkádját is befolyásolná; a PrimeReact overlayek a saját dokumentumukban maradnak; a
+  mobil/tablet szélesség valódi viewport.
+- A könyvtár CSS-e nem változott: a build-CSS-ből egyetlen szelektor sem tűnt el, csak a
+  Playground-UI osztályai jöttek hozzá.
 
 ### `src/components/CodeBlock.jsx`
-Függőség nélküli, regex-tokenizáló JSX-kiemelő (tag, attribútum, string, kapcsos zárójel,
-írásjel). Szándékosan nem valódi parser.
+Függőség nélküli, regex-tokenizáló JSX-kiemelő. Most a szerkesztő Suspense-fallbackja, amíg a
+CodeMirror chunk letöltődik.
 
 ### `src/TailwindDemo.jsx`
 Oktató jellegű oldal a Tailwind alaposztályairól, 8 kategóriával: Spacing, Színek, Tipográfia,
 Flexbox, Grid, Szegélyek & Sarkok, Árnyékok, Transzformációk. Minden példa mellett
 ott az osztálynév.
+
+### Mérések (2026-11-01, production build, headless Chrome)
+| | előtte (main, 71ad185) | utána |
+|---|---|---|
+| induló JS (`index.html`) | 1060,7 kB (gzip 274,1 kB) | 344,7 kB (gzip 101,5 kB) |
+| build-CSS | 107,07 kB | 108,83 kB (csak új demo-UI osztályok) |
+| axe-core szabálysértő elemek (7 fül összesen) | 302 | 131 |
+| FCP / első kártya, lassú 4G (1,6 Mbps, 150 ms RTT) | 1940 / 1961 ms | 1048 / 1641 ms |
+| FCP / első kártya, localhost | ~330 / ~360 ms | ~270 / ~530 ms (több chunk, vízesés) |
+
+A CodeMirror a `LiveEditor` chunkban, a sucrase a `compile` chunkban, a `@tailwindcss/browser`
+(gzip ~69 kB) csak az iframe-ben töltődik. Az iframe-belépő (teljes könyvtár + Quill + sucrase)
+gzip ~344 kB, csak szerkesztő megnyitásakor töltődik le.
 
 ---
 
@@ -387,11 +465,13 @@ Ezek a kód átnézésekor derültek ki. Nem lettek javítva; dokumentáláskor 
   implementációk, így ezeket semmi nem olvassa.
 - **`dialog.js` mask:** a két string összefűzésénél hiányzik a szóköz
   (`"... p-4" + "bg-black/40 ..."` → `p-4bg-black/40`), így a maszk háttérsötétítése nem jön létre.
-- **Kis- és nagybetű-eltérés az importútvonalakban:** a `components/index.js` `./FieldSet`-et
-  és `./Sidebar`-t importál, a mappák neve viszont `Fieldset` és `SideBar`. Windows alatt
-  működik, kis- és nagybetűérzékeny fájlrendszeren (Linux CI, macOS) eltörné a buildet.
-- **App.jsx:** a „Tailwind Demo” fül blokkja kétszer szerepel egymás után, ezért a
-  `TailwindDemo` kétszer renderelődik.
+- ~~Kis- és nagybetű-eltérés az importútvonalakban~~ (`./FieldSet`, `./Sidebar`) – javítva (73c3aed).
+- ~~A `TailwindDemo` kétszer renderelődött~~ – javítva az App.jsx átírásakor.
+- **Toast pozicionálás:** a `toast.js` PT nem ad `fixed` pozíciót a gyökérnek, és a wrapper nem
+  engedi az `appendTo`-t, így unstyled módban a toast a `body` végére, a folyásba kerül.
+- **Élő szerkesztő:** a CodeMirror `.cm-scroller` eleme axe `scrollable-region-focusable`
+  jelzést kap; minden újrafordítás új komponenstípust ad, ezért szerkesztéskor a példa állapota
+  alaphelyzetbe áll; a futási hibák sorszáma V8-ra (Chrome, Edge) kalibrált.
 - **`animate-fadeIn`** osztályt használ a ConfirmPopUp, a Gallery és a TimePicker, de
   keyframe sehol nincs hozzá definiálva (hatástalan).
 - **Következetlen színhasználat:** a Chip, a Message és a ConfirmDialog Tailwind alapszíneket
@@ -403,7 +483,7 @@ Ezek a kód átnézésekor derültek ki. Nem lettek javítva; dokumentáláskor 
   alapszövege; az `index.html` címe „Vite + React” (`lang="en"`); a `src/App.css` nincs
   használatban; a `public/copy.html` nem kapcsolódik a projekthez; a `save.txt` jegyzet.
 - **`.vscode/launch.json`** a 8080-as portra mutat, a Vite dev szerver alapból az 5173-on fut.
-- Nincsenek automatizált tesztek, nincs TypeScript/PropTypes, a bundle nincs kódszétválasztva.
+- Nincsenek automatizált tesztek a repóban, nincs TypeScript/PropTypes.
 - A `dark:` variáns csak elszórtan szerepel; sötét téma nincs.
 
 ---
@@ -415,10 +495,13 @@ Ezek a kód átnézésekor derültek ki. Nem lettek javítva; dokumentáláskor 
 0009fe0 2026-02-17  Add UI components: MultiSelect, RadioButton, Rating, Slider, ToggleButton, TreeSelect, TriStateCheckbox, Mention, Listbox, Password, SelectButton
 1f87cfd 2026-03-26  push-old checkpoint
 ae88561 2026-07-30  Update UI components and theme presets
+0c35003 2026-10-31  Improve component library and demo UI   (a 6. pont javításai, CLAUDE.md)
+71ad185 2026-10-31  Restore GitHub repository link
 ```
 
-2026-10-07-én 33 fájlban volt nem commitolt módosítás (kb. +1290 / −520 sor), főleg a 6.
-pontban leírt javítások és a `tokens.js` bővítése.
+A `feature/live-playground` branch (2026-11-01) az élő Playgroundot adja hozzá (5. pont):
+importútvonal-javítás, a példák kiszervezése, lusta fülek, futtatómag, iframe-előnézet,
+szerkesztő és vezérlők, akadálymentességi javítások.
 
 ---
 
@@ -432,7 +515,8 @@ pontban leírt javítások és a `tokens.js` bővítése.
 4. Implementáció: PT minták (statikus és állapotfüggő), token-rendszer, wrapper-típusok,
    saját komponensek, globális CSS-javítások.
 5. Problémák és megoldások (6. pont).
-6. Bemutató alkalmazás: Playground, élő prop-vezérlés, kódnézet.
+6. Bemutató alkalmazás: élő Playground (egyetlen igazságforrás, futásidejű fordítás, iframe +
+   böngészős Tailwind), a vezérlők mint kódsablon-átírás, lusta betöltés és mérései.
 7. Tesztelés és értékelés: jelenleg manuális, a demón keresztül.
 8. Továbbfejlesztési lehetőségek: a 7. pont tételei, TypeScript, tesztek, Storybook, npm-csomag,
    sötét téma, kódszétválasztás.
@@ -445,3 +529,6 @@ pontban leírt javítások és a `tokens.js` bővítése.
   PrimeReact komponensnévvel egyező kulccsal.
 - Stílusértékek a `tokens.js`-ből; mindig teljes, literál Tailwind osztálynevek.
 - Megjegyzések magyarul, a döntések indoklásával (a kódbázis ezt a stílust követi).
+- Új bemutató példa: `src/examples/<fül>/<Név>.jsx` (`export default function Pelda()`,
+  importok csak `react`, `sze-ui`, `../adatok`), és egy sor a fül `index.js` META tömbjébe.
+  Vezérlőnél a vezérelt prop literálként szerepeljen a fájlban, a `default`-tal egyező értékkel.
