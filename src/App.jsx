@@ -1564,6 +1564,15 @@ export default function App() {
         <div className="mt-16 pt-8 border-t border-gray-300 text-center text-gray-600">
           <p className="mb-2">SZE UI Component Library v1.0</p>
           <p className="text-sm">Powered by React, PrimeReact & Tailwind CSS</p>
+          <a
+            href="https://github.com/kovacsben/sze-university-ui"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center gap-2 text-sm text-sze-primary hover:text-sze-secondary-600 transition-colors"
+          >
+            <i className="pi pi-github" aria-hidden="true"></i>
+            GitHub repository
+          </a>
         </div>
       </div>
     </div>
