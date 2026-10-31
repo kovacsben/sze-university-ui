@@ -1,5 +1,4 @@
 import React from "react";
-import TailwindDemo from "./TailwindDemo";
 import ExampleList from "./components/ExampleList";
 import { TABS } from "./examples";
 
@@ -9,7 +8,19 @@ import { TABS } from "./examples";
  * A példák nem itt vannak, hanem példánként egy-egy fájlban az src/examples
  * alatt (lásd src/examples/index.js). Így a megjelenített kód és a futó kód
  * ugyanaz a fájl, és ez a fájl rövid marad.
+ *
+ * A fülek lustán töltődnek (React.lazy): a fő csomagban csak a váz van, egy fül
+ * példái és függőségei (pl. Quill) az első megnyitáskor jönnek le.
  */
+
+const TailwindDemo = React.lazy(() => import("./TailwindDemo"));
+
+const TAB_VIEWS = Object.fromEntries(
+  TABS.map((t) => [
+    t.id,
+    React.lazy(() => t.load().then((m) => ({ default: () => <ExampleList examples={m.default} /> }))),
+  ])
+);
 
 function TabButton({ id, label, icon, activeTab, onSelect }) {
   return (
@@ -29,7 +40,7 @@ function TabButton({ id, label, icon, activeTab, onSelect }) {
 
 export default function App() {
   const [activeTab, setActiveTab] = React.useState("buttons");
-  const tab = TABS.find((t) => t.id === activeTab);
+  const TabView = activeTab === "tailwind" ? TailwindDemo : TAB_VIEWS[activeTab];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -51,7 +62,15 @@ export default function App() {
           <TabButton id="tailwind" label="Tailwind Demo" icon="pi pi-palette" activeTab={activeTab} onSelect={setActiveTab} />
         </div>
 
-        {activeTab === "tailwind" ? <TailwindDemo /> : tab && <ExampleList examples={tab.examples} />}
+        <React.Suspense
+          fallback={
+            <p role="status" className="py-12 text-center text-gray-500">
+              Betöltés…
+            </p>
+          }
+        >
+          <TabView />
+        </React.Suspense>
 
         {/* FOOTER */}
         <div className="mt-16 pt-8 border-t border-gray-300 text-center text-gray-600">

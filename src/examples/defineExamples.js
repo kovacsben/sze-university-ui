@@ -27,6 +27,9 @@ export default function defineExamples(tab, modules, sources, meta) {
       ...m,
       id: `${tab}/${m.file}`,
       Component: modules[`./${m.file}.jsx`],
-      code: sources[`./${m.file}.jsx`],
+      // Windowsos checkoutnál a fájl CRLF sorvégű lehet, a CodeMirror viszont
+      // \n-nel adja vissza a szöveget - normalizálás nélkül minden kód
+      // "módosítottnak" látszana.
+      code: sources[`./${m.file}.jsx`].replace(/\r\n/g, "\n"),
     }));
 }
