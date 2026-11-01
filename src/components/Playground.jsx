@@ -14,6 +14,13 @@ const LiveEditor = React.lazy(() => import("./live/LiveEditor"));
 const DEBOUNCE_MS = 300;
 
 /**
+ * A szélességválasztó opciói csak felirattal és értékkel: a PrimeReact
+ * SelectButton az opció `className` mezőjét a szegmensre teszi, így a
+ * VIEWPORTS iframe-szélességei (w-full, w-[768px]) a gombokat nyújtanák szét.
+ */
+const VIEWPORT_OPTIONS = VIEWPORTS.map(({ label, value }) => ({ label, value }));
+
+/**
  * Kártyánkénti szerkesztések megőrzése fülváltáskor: a fülek lustán
  * mountolódnak, így a Playground állapota váltáskor elveszne. Modulszintű,
  * tehát oldalújratöltéskor (szándékosan) kiürül.
@@ -250,7 +257,7 @@ export default function Playground(props) {
                 Előnézet szélessége
               </span>
               <SelectButton
-                options={VIEWPORTS}
+                options={VIEWPORT_OPTIONS}
                 optionLabel="label"
                 optionValue="value"
                 value={viewport}

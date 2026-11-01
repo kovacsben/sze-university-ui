@@ -2,27 +2,28 @@ import { Accordian } from "sze-ui";
 
 const items = [
   {
-    header: "🎓 Széchenyi István Egyetem Bemutatása",
+    header: "A Széchenyi István Egyetemről",
     content:
-      "A Széchenyi István Egyetem (SZE) Magyarország egyik vezető felsőoktatási intézménye. Az egyetem modern képzéseket és kutatási lehetőségeket kínál a hallgatók számára.",
+      "A Széchenyi István Egyetem (SZE) Győrben működő, sokkarú felsőoktatási intézmény. Mérnöki, gazdasági, jogi, egészségügyi, pedagógiai és művészeti képzéseket kínál, szoros ipari kapcsolatokkal.",
   },
   {
-    header: "💼 Mérnöki Programok",
+    header: "Mérnöki képzések",
     content:
-      "Széleskörű mérnöki szakok közül választhat: Gépészmérnöki, Elektromérnöki, Informatikai, Építőmérnöki, és még sok más program áll rendelkezésre.",
+      "Járműmérnöki, gépészmérnöki, mérnökinformatikus, villamosmérnöki, építőmérnöki és közlekedésmérnöki alapképzések - laborokkal és gyakorlati projektekkel.",
   },
   {
-    header: "🔬 Kutatási Lehetőségek",
+    header: "Kutatási lehetőségek",
     content:
-      "Az egyetem aktívan támogatja a tudományos kutatást. Számos kutatási projekt és laboratorium áll az oktatók és hallgatók rendelkezésére módszerek és technológiák fejlesztésére.",
+      "Az egyetem kutatócsoportjaiban és laboratóriumaiban a hallgatók már az alapképzés alatt bekapcsolódhatnak ipari és tudományos projektekbe.",
   },
   {
-    header: "🌍 Nemzetközi Kapcsolatok",
+    header: "Nemzetközi kapcsolatok",
     content:
-      "Az SZE nemzetközi partnervárostok széles hálózatával működik együtt, és csereprogramokat kínál a hallgatók számára szerte a világon.",
+      "Erasmus+ és más csereprogramok révén a hallgatók félévet tölthetnek külföldi partneregyetemeken, az egyetem pedig nemzetközi hallgatókat is fogad.",
   },
 ];
 
 export default function Pelda() {
-  return <Accordian items={items} />;
+  // Az első fül nyitva indul, hogy látszódjon a nyitott és a zárt fülek különbsége.
+  return <Accordian items={items} activeIndex={0} />;
 }

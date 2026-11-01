@@ -1,4 +1,4 @@
-import { accordianPT } from "./accordian";
+import { accordionPT } from "./accordion";
 import { avatarPT } from "./avatar";
 import { breadcrumbPT } from "./breadcrumb";
 import { buttonPT } from "./button";
@@ -46,7 +46,9 @@ import { tooltip } from "./tooltip";
 import { tree } from "./tree";
 
 export const pt = {
-  accordian: accordianPT,
+  // A kulcs a PrimeReact belső neve (Accordion -> accordion); a korábbi
+  // "accordian" elírás miatt ez a PT sosem érvényesült.
+  accordion: accordionPT,
   avatar: avatarPT,
   breadcrumb: breadcrumbPT,
   button: buttonPT,

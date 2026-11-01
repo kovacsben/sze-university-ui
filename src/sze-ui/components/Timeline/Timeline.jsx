@@ -1,45 +1,56 @@
 import React from 'react';
 import { Timeline as PrimeTimeline } from 'primereact/timeline';
 
+/**
+ * SZE Timeline - esemény-idővonal
+ *
+ * Balra az esemény ikonja egy SZE-kék körben, a mellette lévő kártya függőleges
+ * közepéhez igazítva (a köröket vonal köti össze); jobbra a tartalom: cím, dátum, leírás. Az elrendezés
+ * a PT-ből jön (theme/pt/timeline.js), itt csak a jelölő és a tartalom sablonja.
+ *
+ * value: [{ title, description?, date?, icon?, done? }]
+ *   - done: false esetén a jelölő halvány (még hátralévő esemény)
+ */
 const Timeline = ({
   value = [],
   align = 'left',
   layout = 'vertical',
   className = '',
   style = {},
-  dataKey = '',
+  dataKey = undefined,
 }) => {
-  const customMarker = (item) => {
-    return (
-      <span className="flex items-center justify-center w-10 h-10 rounded-full bg-sze-primary text-white font-semibold">
-        <i className={`${item.icon} text-lg`}></i>
-      </span>
-    );
-  };
+  const marker = (item) => (
+    <span
+      // relative z-[1]: a jelölő a mögötte futó összekötő vonal fölött legyen
+      className={`relative z-[1] flex h-10 w-10 shrink-0 items-center justify-center rounded-full shadow-sm ring-4 ring-white ${
+        item.done === false ? 'bg-sze-primary-100 text-sze-primary' : 'bg-sze-primary text-white'
+      }`}
+    >
+      <i className={`${item.icon || 'pi pi-circle-fill'} text-base`} aria-hidden="true" />
+    </span>
+  );
 
-  const customContent = (item) => {
-    return (
-      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <h4 className="font-semibold text-sze-primary mb-2">{item.title}</h4>
-        <p className="text-gray-600 text-sm">{item.description}</p>
-        {item.date && (
-          <small className="text-gray-500 block mt-2">{item.date}</small>
-        )}
+  const content = (item) => (
+    <div className="rounded-xl border border-black/10 bg-white px-4 py-3 shadow-sm">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h4 className="font-semibold text-sze-primary">{item.title}</h4>
+        {item.date && <time className="text-xs font-medium text-gray-500 tabular-nums">{item.date}</time>}
       </div>
-    );
-  };
+      {item.description && <p className="mt-1 text-sm text-gray-600">{item.description}</p>}
+    </div>
+  );
 
   return (
-    <div className={`timeline-wrapper ${className}`} style={style}>
-      <PrimeTimeline
-        value={value}
-        align={align}
-        layout={layout}
-        marker={customMarker}
-        content={customContent}
-        className="timeline-custom"
-      />
-    </div>
+    <PrimeTimeline
+      value={value}
+      align={align}
+      layout={layout}
+      dataKey={dataKey}
+      marker={marker}
+      content={content}
+      className={className}
+      style={style}
+    />
   );
 };
 

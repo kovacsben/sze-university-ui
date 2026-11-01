@@ -1,162 +1,144 @@
-import React from 'react';
+import React from "react";
+import { classNames } from "primereact/utils";
+import { Avatar } from "../Avatar";
+import { Button } from "../Button";
+import { MenuBarButton, MenuItemButton, MenuSeparator } from "../MenuParts";
+import { MENU_BAR, MENU_PANEL, runItem, useDismiss } from "../menuUtils";
 
-const Menubar = ({
-  items = [],
-  model = [],
-  logo = null,
-  className = '',
-  onItemClick = null,
-  logoText = 'SZE UI',
-}) => {
-  const [activeSubmenu, setActiveSubmenu] = React.useState(null);
+/**
+ * SZE Menubar - alkalmazásfejléc menüsávval
+ *
+ * Alapkomponensekből épül (lásd ../menuUtils.js): a logó alapértelmezésben
+ * SZE Avatar, a menüpontok és a mobil nyitógomb SZE Button-ök, az elválasztó
+ * SZE Divider. A sáv és a lenyíló panelek a Megamenu-vel azonosak.
+ *
+ * Model: [{ label, icon, command?, items?: [{ label, icon, command } | { separator: true }] }]
+ *
+ * Asztali nézetben (lg felett) a pontok egy sorban, almenük kattintásra
+ * nyílnak; ha már nyitva van egy, a többi fölé víve az egeret átvált.
+ * Kisebb kijelzőn hamburgergomb nyitja a függőleges listát, az almenük
+ * helyben bomlanak ki.
+ *
+ * @param {Array}    model / items - a menü (az `items` a régi név, elsőbbséget élvez)
+ * @param {string|ReactNode} logo  - kép URL vagy saját elem; alapból Avatar a logoText kezdőbetűjével
+ * @param {string}   logoText
+ * @param {Function} onItemClick   - onItemClick(item) minden kiválasztott pontra
+ */
+const Menubar = ({ items = [], model = [], logo = null, logoText = "SZE UI", className = "", onItemClick = null }) => {
+  const [active, setActive] = React.useState(null);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-
-  const handleItemClick = (item) => {
-    if (onItemClick) {
-      onItemClick(item);
-    }
-    if (item.command) {
-      item.command();
-    }
-    setActiveSubmenu(null);
-  };
+  const [mobileSub, setMobileSub] = React.useState(null);
+  const rootRef = React.useRef(null);
+  const uid = React.useId();
 
   const menuItems = items.length > 0 ? items : model;
 
+  const closeAll = () => {
+    setActive(null);
+    setMobileOpen(false);
+    setMobileSub(null);
+  };
+  useDismiss(rootRef, active !== null || mobileOpen, closeAll);
+
+  const select = (item, e) => {
+    runItem(item, e, onItemClick);
+    closeAll();
+  };
+
+  const renderEntries = (entries) =>
+    entries.map((entry, j) =>
+      entry.separator ? (
+        <MenuSeparator key={`sep-${j}`} />
+      ) : (
+        <li key={entry.label ?? j}>
+          <MenuItemButton item={entry} onClick={(e) => select(entry, e)} />
+        </li>
+      )
+    );
+
+  const logoElement =
+    typeof logo === "string" ? (
+      <img src={logo} alt="" className="h-8 w-8 object-contain" />
+    ) : (
+      logo ?? <Avatar label={logoText.charAt(0)} shape="square" size="small" aria-hidden="true" />
+    );
+
   return (
-    <div className={`w-full ${className}`}>
-      {/* Menubar */}
-      <nav className="bg-white border-b-2 border-sze-primary-200 shadow-md">
-        <div className="flex items-center justify-between px-4 py-3">
-          {/* Logo Section */}
-          <div className="flex items-center gap-3">
-            {logo ? (
-              typeof logo === 'string' ? (
-                <img src={logo} alt="Logo" className="h-8 w-8" />
-              ) : (
-                logo
-              )
-            ) : (
-              <div className="h-8 w-8 rounded bg-gradient-to-br from-sze-primary to-sze-primary-700 flex items-center justify-center text-white font-bold text-sm">
-                S
-              </div>
-            )}
-            <span className="font-bold text-sze-primary text-lg hidden sm:inline">{logoText}</span>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-1">
-            {menuItems.map((item, index) => (
-              <div
-                key={index}
-                className="relative group"
-                onMouseEnter={() => setActiveSubmenu(index)}
-                onMouseLeave={() => setActiveSubmenu(null)}
-              >
-                {/* Menu Item Button */}
-                <button
-                  onClick={() => {
-                    handleItemClick(item);
-                    if (!item.items) {
-                      setMobileOpen(false);
-                    }
-                  }}
-                  className="px-4 py-2 text-gray-700 hover:text-sze-primary hover:bg-sze-primary-50 rounded-lg transition-all duration-200 font-medium flex items-center gap-2 whitespace-nowrap"
-                >
-                  {item.icon && <i className={item.icon} />}
-                  <span>{item.label}</span>
-                  {item.items && item.items.length > 0 && (
-                    <i className="pi pi-chevron-down text-xs group-hover:rotate-180 transition-transform duration-200" />
-                  )}
-                </button>
-
-                {/* Submenu Dropdown */}
-                {item.items && item.items.length > 0 && (
-                  <div
-                    className={`absolute left-0 mt-0 bg-white border border-sze-primary-200 rounded-b-lg shadow-xl z-40 min-w-max overflow-hidden transition-all duration-200 ${
-                      activeSubmenu === index
-                        ? 'opacity-100 visible top-full'
-                        : 'opacity-0 invisible -top-2 pointer-events-none'
-                    }`}
-                  >
-                    {item.items.map((subitem, subIndex) => (
-                      <button
-                        key={subIndex}
-                        onClick={() => handleItemClick(subitem)}
-                        className="w-full text-left px-4 py-3 text-gray-700 hover:text-sze-primary hover:bg-sze-primary-50 transition-colors duration-200 border-b border-sze-primary-100 last:border-b-0 flex items-center gap-2"
-                      >
-                        {subitem.icon && <i className={subitem.icon} />}
-                        <span>{subitem.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-sze-primary-50 text-sze-primary"
-          >
-            <i className={`pi ${mobileOpen ? 'pi-times' : 'pi-bars'} text-xl`} />
-          </button>
+    <nav ref={rootRef} aria-label={logoText} className={classNames("relative w-full", className)}>
+      <div className={classNames(MENU_BAR, "justify-between gap-3 pl-3")}>
+        <div className="flex items-center gap-3">
+          {logoElement}
+          <span className="hidden sm:inline font-bold text-lg text-sze-primary">{logoText}</span>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileOpen && (
-          <div className="lg:hidden border-t border-sze-primary-200 bg-gray-50">
-            {menuItems.map((item, index) => (
-              <div key={index}>
-                <button
-                  onClick={() => {
-                    if (!item.items) {
-                      handleItemClick(item);
-                      setMobileOpen(false);
-                    } else {
-                      setActiveSubmenu(activeSubmenu === index ? null : index);
-                    }
-                  }}
-                  className="w-full text-left px-4 py-3 text-gray-700 hover:bg-sze-primary-100 transition-colors duration-200 font-medium flex items-center justify-between"
-                >
-                  <span className="flex items-center gap-2">
-                    {item.icon && <i className={item.icon} />}
-                    {item.label}
-                  </span>
-                  {item.items && item.items.length > 0 && (
-                    <i
-                      className={`pi pi-chevron-down text-xs transition-transform duration-200 ${
-                        activeSubmenu === index ? 'rotate-180' : ''
-                      }`}
-                    />
-                  )}
-                </button>
-
-                {/* Mobile Submenu */}
-                {item.items && item.items.length > 0 && activeSubmenu === index && (
-                  <div className="bg-white border-l-4 border-sze-primary">
-                    {item.items.map((subitem, subIndex) => (
-                      <button
-                        key={subIndex}
-                        onClick={() => {
-                          handleItemClick(subitem);
-                          setMobileOpen(false);
-                        }}
-                        className="w-full text-left px-6 py-2 text-gray-600 hover:text-sze-primary hover:bg-sze-primary-50 transition-colors duration-200 text-sm flex items-center gap-2"
-                      >
-                        {subitem.icon && <i className={subitem.icon} />}
-                        {subitem.label}
-                      </button>
-                    ))}
-                  </div>
+        {/* Asztali menü */}
+        <ul className="hidden lg:flex list-none m-0 p-0 items-center gap-1">
+          {menuItems.map((item, i) => {
+            const hasPanel = item.items?.length > 0;
+            const open = active === i;
+            return (
+              <li key={item.label ?? i} className="relative">
+                <MenuBarButton
+                  item={item}
+                  hasPanel={hasPanel}
+                  open={open}
+                  aria-controls={hasPanel && open ? `${uid}-sub-${i}` : undefined}
+                  onMouseEnter={() => active !== null && setActive(hasPanel ? i : null)}
+                  onClick={(e) => (hasPanel ? setActive(open ? null : i) : select(item, e))}
+                />
+                {hasPanel && open && (
+                  <ul
+                    id={`${uid}-sub-${i}`}
+                    className={classNames(MENU_PANEL, "absolute right-0 top-full mt-2 min-w-56 list-none m-0 flex flex-col gap-0.5")}
+                  >
+                    {renderEntries(item.items)}
+                  </ul>
                 )}
-              </div>
-            ))}
-          </div>
-        )}
-      </nav>
-    </div>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* Mobil nyitógomb */}
+        <Button
+          type="button"
+          variant="text"
+          radius="full"
+          icon={mobileOpen ? "pi pi-times" : "pi pi-bars"}
+          aria-label={mobileOpen ? "Menü bezárása" : "Menü megnyitása"}
+          aria-expanded={mobileOpen}
+          aria-controls={`${uid}-mobile`}
+          className="lg:hidden"
+          onClick={() => setMobileOpen((o) => !o)}
+        />
+      </div>
+
+      {/* Mobil menü: függőleges lista, helyben kibomló almenükkel */}
+      {mobileOpen && (
+        <ul id={`${uid}-mobile`} className={classNames(MENU_PANEL, "lg:hidden mt-2 list-none flex flex-col gap-0.5")}>
+          {menuItems.map((item, i) => {
+            const hasPanel = item.items?.length > 0;
+            const open = mobileSub === i;
+            return (
+              <li key={item.label ?? i}>
+                <MenuItemButton
+                  item={item}
+                  trailingIcon={hasPanel ? classNames("pi pi-chevron-down transition-transform", open && "rotate-180") : null}
+                  aria-expanded={hasPanel ? open : undefined}
+                  aria-controls={hasPanel && open ? `${uid}-msub-${i}` : undefined}
+                  onClick={(e) => (hasPanel ? setMobileSub(open ? null : i) : select(item, e))}
+                />
+                {hasPanel && open && (
+                  <ul id={`${uid}-msub-${i}`} className="list-none m-0 ml-4 pl-2 border-l border-gray-200 flex flex-col gap-0.5">
+                    {renderEntries(item.items)}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </nav>
   );
 };
 

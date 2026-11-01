@@ -90,6 +90,7 @@ sze-university-ui/
       │     └─ index.js       # a globális `pt` objektum összeállítása
       └─ components/
          ├─ index.js          # barrel: minden komponensmappa újraexportálása
+         ├─ MenuParts.jsx, menuUtils.js  # a 3 saját menü közös részei (nem publikus)
          └─ <Név>/            # mappánként: <Név>.jsx + index.js (barrel export)
 ```
 
@@ -195,6 +196,10 @@ szabályok javítják (a rétegezetlen szabályok a Tailwind utilities réteget 
   kitöltött állapot esetén.
 - **IconField** (`.sze-iconfield`): ikonpozíció és input-padding.
 - **ToggleButton** animációk (`toggle-checked` / `toggle-unchecked` keyframe-ek).
+- **ProgressBar** csíkminta (`.sze-progress-stripes`), **ScrollPanel** rejtett sáv
+  (`.p-scrollpanel-hidden`).
+- **Mintaszabály:** a PrimeReact komponens saját `pt` propja alapból *felülírja* a globális PT
+  azonos szekcióját (nem fűzi össze) - ezért adják a helyi pt-s komponensek a teljes PT-t.
 
 ### 3.5 Komponenstípusok
 
@@ -216,7 +221,7 @@ A PT oszlop a `theme/pt/` alatti fájlt jelöli (ha van és érvényesül).
 ### Gombok és akciók
 | Komponens | Típus | Alap | PT | Lényeg |
 |---|---|---|---|---|
-| Button | B | Button | button.js | `variant`: secondary/outline/text/link → PrimeReact propok; `severity`; `fullWidth`; ikon-only felismerés; `radius`, `size` |
+| Button | B | Button | button.js | `variant`: secondary/outline/text/link → PrimeReact propok; `severity`; `fullWidth`; `align="left"` (menüpontok, oldalsáv-navigáció); ikon-only felismerés; `radius`, `size` |
 | IconButton | B | Button | button.js | csak ikon (`label={null}`) |
 | ButtonGroup | S | – | – | `inline-flex gap-2` konténer |
 | SplitButton | B | SplitButton | SplitButton.js | `variant` leképezés, menü `model`-lel; részleges kerekítés `!important`-tal |
@@ -232,7 +237,7 @@ A PT oszlop a `theme/pt/` alatti fájlt jelöli (ha van és érvényesül).
 | Password | W | Password | password.js | |
 | InputNumber | B | InputNumber | inputnumber.js (helyi pt) | `fullWidth`, +/– gombok a pill-íven belül |
 | InputOtp | W | InputOtp | inputotp.js | többcellás kódmező |
-| InputSwitch | W | InputSwitch | inputswitch.js | |
+| InputSwitch | W | InputSwitch | inputswitch.js | a kapcsológomb a `slider` `before:` pszeudo-eleme (nincs `handle` szekció) |
 | InputGroup / InputGroupAddon | S | – | index.css | összefüggő kontrollsor (pl. bankkártya-adatok) |
 | IconField / InputIcon | B | IconField / InputIcon | index.css | ikon az input bal/jobb oldalán (`position`) |
 | FloatLabel | B | FloatLabel | index.css | `cloneElement`-tel `id` + `inputId` a gyereknek |
@@ -260,54 +265,54 @@ A PT oszlop a `theme/pt/` alatti fájlt jelöli (ha van és érvényesül).
 | Komponens | Típus | Alap | PT | Lényeg |
 |---|---|---|---|---|
 | Calendar | B | Calendar | calendar.js | `appendTo="self"`, `fullWidth`; egynapos, tartomány, idővel |
-| TimePicker | S | – | (timepicker.js nem érvényesül) | saját legördülő óra/perc/(mp) léptetővel, 24h/12h, `"HH:mm[:ss]"` stringet ad |
+| TimePicker | S | – | (timepicker.js nem érvényesül) | SZE Button/InputText/SelectButton-ből épül, a nyitómező a Dropdown-éval azonos; `hourFormat` "24"/"12", kontrollált/kontrollálatlan, `"HH:mm[:ss]"` stringet ad; a Calendar időválasztója (calendar.js PT) ugyanezt a léptető + értékdoboz mintát követi |
 
 ### Overlay és visszajelzés
 | Komponens | Típus | Alap | PT | Lényeg |
 |---|---|---|---|---|
-| Dialog | W | Dialog | dialog.js | `radius` |
+| Dialog | W | Dialog | dialog.js | `radius`; a `root` a doboz (háttér, ív, árnyék), a fejléc/lábléc szegély nélkül, a bezáró gomb a Button text variánsa |
 | ConfirmDialog | S | – | – | saját modális ablak háttérrel, `severity` (info/success/warning/danger), SZE Button-ök |
 | ConfirmPopUp | S | – | – | gomb melletti kis megerősítő buborék, `position` (top/bottom/left/right) |
 | Toast | B | Toast | toast.js | `forwardRef`, a hívó `ref.current.show(...)`-val használja |
 | Tooltip | B | Tooltip | tooltip.js | `React.useId()`-vel generált célpont |
 | Message | S | – | (message.js nem érvényesül) | `severity` info/success/warning/error, bezárható |
 | Messages | B | Messages | message.js (`messages` kulcs) | helyi lista + „Összes törlése” gomb |
-| Sidebar | B | Sidebar | sidebar.js | oldalsó fiók, `position`, `modal` |
+| Sidebar | B | Sidebar | sidebar.js | beúszás a PT `transition` kulcsával (oldalanként), elmosott háttér, SZE-kék fejlécsáv; `title`/`subtitle`/`header`, `footer`, `position`, `modal` |
 
 ### Navigáció és menük
 | Komponens | Típus | Alap | PT | Lényeg |
 |---|---|---|---|---|
 | Menu | B | Menu | menu.js | `popup` mód SZE Button nyitógombbal |
-| Menubar | S | – | (menubar.js nem érvényesül) | logó + menüsor, legördülő almenük, mobil hamburger nézet |
-| Megamenu | S | – | (megamenu.js nem érvényesül) | többoszlopos lenyíló menü hoverre |
-| TieredMenu | S | – | – | rekurzív, behúzott hierarchikus lista |
+| Menubar | S | – | (menubar.js nem érvényesül) | logó (alapból SZE Avatar) + menüsor, kattintásra nyíló almenük, mobil hamburger nézet; SZE Button/Divider-ből (lásd `MenuParts.jsx`) |
+| Megamenu | S | – | (megamenu.js nem érvényesül) | többoszlopos panel a teljes sáv alatt, kattintásra nyílik (nyitott állapotban hoverre vált); SZE Button/Divider-ből |
+| TieredMenu | S | – | – | tetszőleges mélységű, oldalra nyíló almenük (hover, kattintás, →/←/Esc); SZE Button/Divider-ből |
 | TabMenu | B | TabMenu | tabmenu.js | `items` vagy `model`; aktív fül jelölése `state.activeIndex` alapján |
 | Breadcrumb | S | – | (breadcrumb.js nem érvényesül) | útvonal `<nav>`, gomb-elemekkel |
 | Steps | S | – | – | egyszerű lépésjelző |
 | Stepper | S | – | – | `<ol>`/`<button>` alapú, vízszintes/függőleges, feliratokkal, a11y |
-| Paginator | B | Paginator | paginator.js | magyar „{first}-{last} / {totalRecords} találat” riport, `showPageLinks` |
+| Paginator | B | Paginator | paginator.js | találatszám balra (`leftContent`), lapozógombok középen, „/ oldal” SZE Dropdown jobbra (`rightContent`); `showPageLinks` |
 
 ### Layout és tartalom
 | Komponens | Típus | Alap | PT | Lényeg |
 |---|---|---|---|---|
-| Card | S | – | tokens | `title`/`subtitle`/`header`/`footer`, `radius`, `shadow` |
-| Panel | B | Panel | panel.js | csukható; kontrollált csak ha `onToggle` van |
+| Card | S | – | tokens | tipográfiai hierarchia: `eyebrow` (kis nagybetűs címke) / `title` (xl, félkövér) / `subtitle` / törzs; `header`, `footer`, `radius`, `shadow` |
+| Panel | B | Panel | panel.js | csukható, a teljes fejléc kattintható (a toggler `after:` rétege); kontrollált csak ha `onToggle` van; `footer` |
 | FieldSet | S | – | – | natív `<fieldset>`/`<legend>`, `toggleable` gombbal |
-| Accordian | B | Accordion + AccordionTab | accordian.js (**nem érvényesül**, lásd 7.) | `items: [{header, content}]` |
+| Accordian | B | Accordion + AccordionTab | accordion.js (`accordion` kulcs) | `items: [{header, content}]`; külön kártyás fülek, a nyitott fejléce kitöltött SZE-kék, nyíl a cím előtt |
 | Divider | S | – | – | vízszintes/függőleges, solid/dashed/dotted, középső felirat |
-| ScrollPanel | B | ScrollPanel | scrollpanel.js | `height` prop |
-| Gallery | S | – | – | rácsos képgaléria + lightbox előző/következő navigációval |
+| ScrollPanel | B | ScrollPanel | scrollpanel.js | `height`; saját (hoverre megjelenő) görgetősáv, a PrimeReact elrejtő elrendezése PT-ben pótolva |
+| Gallery | S | – | – | rácsos képgaléria + lightbox (Esc, ←/→, háttérkattintás); `thumb` a rácsba, `src` a nagyítóba |
 | Inplace | B | Inplace | inplace.js | kattintásra szerkeszthető szöveg, Mentés/Mégse |
 | Avatar | W | Avatar | avatar.js | kép/ikon/monogram, `size`, `shape` |
 | Chip | S | – | tokens | `severity`, `closable`, ikon/avatar |
-| Timeline | B | Timeline | timeline.js | egyedi marker (SZE kör) és tartalomkártya |
+| Timeline | B | Timeline | timeline.js | ikon balra (SZE kör + összekötő vonal), tartalomkártya mellette; `done: false` halvány jelölő |
 
 ### Állapot és betöltés
 | Komponens | Típus | Alap | PT | Lényeg |
 |---|---|---|---|---|
-| ProgressBar | B | ProgressBar | progressbar.js | `color` (Tailwind osztálynév → hex), `displayFormat` → `displayValueTemplate` |
-| ProgressSpinner | B | ProgressSpinner | progressspinner.js | opcionális felirat |
-| Skeleton | B | Skeleton | skeleton.js | `count` darab placeholder |
+| ProgressBar | B | ProgressBar | progressbar.js (helyi pt: `progressBarPT()`) | `color` (token név → CSS-változó), `size`, `animated` (mozgó csíkok), `label`; az érték a sáv mellett |
+| ProgressSpinner | B | ProgressSpinner | progressspinner.js | `size` (sm/md/lg), opcionális felirat; forgás + `spinner-dash` animáció |
+| Skeleton | B | Skeleton | skeleton.js | `count`, `shape="circle"`, `size`; átfutó fény (`after:animate-shimmer`) |
 
 ---
 
@@ -418,8 +423,11 @@ során felmerült problémák” vagy „Implementáció” fejezetéhez.
 1. **Unstyled + PT a téma-CSS helyett.** A PrimeReact viselkedése és akadálymentessége
    megmarad, a megjelenés viszont teljesen Tailwind-alapú és tokenekből vezérelt. Ára: az
    unstyled mód a PrimeReact saját CSS-ében lévő *funkcionális* szabályokat is elhagyja, ezeket
-   pótolni kellett (lásd 3.4, illetve: ScrollPanel görgetés, Tree behúzás és levélelem-nyíl,
-   Knob `fill: none`, TabMenu aktív fül jelölése).
+   pótolni kellett (lásd 3.4, illetve: ScrollPanel görgetés és saját sáv, Tree behúzás és
+   levélelem-nyíl, Knob `fill: none`, TabMenu aktív fül jelölése, InputSwitch gomb, Timeline
+   sor-elrendezés, Sidebar beúszás, ProgressSpinner szín és animáció, Skeleton hullám). Az
+   animációk keyframe-jei az `index.css` `@theme` blokkjában vannak (`--animate-*`), így az élő
+   előnézet iframe-je is megkapja őket.
 2. **Egyetlen forrás a stílusokhoz.** A színek az `@theme`-ben, a geometria a `tokens.js`-ben;
    a `tailwind.config.js` szándékosan nem duplikálja őket. A SelectButton a Button
    `BUTTON_BASE` + `buttonVariantClasses` exportját használja újra, így a két komponens színei
@@ -457,14 +465,12 @@ során felmerült problémák” vagy „Implementáció” fejezetéhez.
 
 Ezek a kód átnézésekor derültek ki. Nem lettek javítva; dokumentáláskor jó tudni róluk.
 
-- **`accordian` elírás:** a komponens és a PT-kulcs is `accordian`. A PrimeReact a globális
-  PT-t a komponens belső neve (`accordion`) alapján keresi, ezért az `accordianPT` valószínűleg
-  **nem érvényesül** az Accordionon.
+- ~~`accordian` PT-kulcs~~ – javítva: a PT most `accordion` kulcson van (`theme/pt/accordion.js`).
+  A komponens neve (`Accordian`) a publikus API miatt maradt.
 - **Nem érvényesülő PT-fájlok:** `breadcrumb.js`, `menubar.js`, `megamenu.js`, `timepicker.js`
   és a `message.js` `message` kulcsa olyan komponensekhez tartozik, amelyek saját (nem PrimeReact)
   implementációk, így ezeket semmi nem olvassa.
-- **`dialog.js` mask:** a két string összefűzésénél hiányzik a szóköz
-  (`"... p-4" + "bg-black/40 ..."` → `p-4bg-black/40`), így a maszk háttérsötétítése nem jön létre.
+- ~~`dialog.js` mask: hiányzó szóköz (`p-4bg-black/40`)~~ – javítva a Dialog PT átírásakor.
 - ~~Kis- és nagybetű-eltérés az importútvonalakban~~ (`./FieldSet`, `./Sidebar`) – javítva (73c3aed).
 - ~~A `TailwindDemo` kétszer renderelődött~~ – javítva az App.jsx átírásakor.
 - **Toast pozicionálás:** a `toast.js` PT nem ad `fixed` pozíciót a gyökérnek, és a wrapper nem
@@ -472,11 +478,10 @@ Ezek a kód átnézésekor derültek ki. Nem lettek javítva; dokumentáláskor 
 - **Élő szerkesztő:** a CodeMirror `.cm-scroller` eleme axe `scrollable-region-focusable`
   jelzést kap; minden újrafordítás új komponenstípust ad, ezért szerkesztéskor a példa állapota
   alaphelyzetbe áll; a futási hibák sorszáma V8-ra (Chrome, Edge) kalibrált.
-- **`animate-fadeIn`** osztályt használ a ConfirmPopUp, a Gallery és a TimePicker, de
-  keyframe sehol nincs hozzá definiálva (hatástalan).
+- **`animate-fadeIn`** osztályt használ a ConfirmPopUp, de keyframe nincs hozzá (hatástalan);
+  a meglévő megfelelője az `animate-fade-in`.
 - **Következetlen színhasználat:** a Chip, a Message és a ConfirmDialog Tailwind alapszíneket
-  (`green-*`, `yellow-*`, `red-*`) használ a `success`/`warning`/`danger` tokenek helyett;
-  a ProgressBar hex-kódokat duplikál.
+  (`green-*`, `yellow-*`, `red-*`) használ a `success`/`warning`/`danger` tokenek helyett.
 - **API-eltérések:** a TriStateCheckbox és a MultiStateCheckbox `onChange`-e értéket ad, a
   többi komponensé eseményobjektumot. A Toast `onRemove`-ban `console.log` maradt.
 - **Maradványfájlok:** üres `components/Upload/` mappa; a `README.md` a Vite-sablon

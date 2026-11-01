@@ -1,37 +1,47 @@
+import { useState } from "react";
 import { Menubar } from "sze-ui";
 
+const menu = [
+  { label: "Kezdőlap", icon: "pi pi-home" },
+  {
+    label: "Egyetem",
+    icon: "pi pi-building",
+    items: [
+      { label: "Rólunk", icon: "pi pi-info-circle" },
+      { label: "Karok", icon: "pi pi-sitemap" },
+      { label: "Vezetés", icon: "pi pi-users" },
+      { separator: true },
+      { label: "Kapcsolat", icon: "pi pi-envelope" },
+    ],
+  },
+  {
+    label: "Képzések",
+    icon: "pi pi-book",
+    items: [
+      { label: "Alapképzések", icon: "pi pi-book" },
+      { label: "Mesterképzések", icon: "pi pi-bookmark" },
+      { label: "Doktori képzés", icon: "pi pi-star" },
+    ],
+  },
+  {
+    label: "Fiókom",
+    icon: "pi pi-user",
+    items: [
+      { label: "Profil", icon: "pi pi-id-card" },
+      { label: "Beállítások", icon: "pi pi-cog" },
+      { separator: true },
+      { label: "Kijelentkezés", icon: "pi pi-sign-out" },
+    ],
+  },
+];
+
 export default function Pelda() {
+  const [selected, setSelected] = useState(null);
+
   return (
-    <div className="space-y-6">
-      {/* Main Menubar */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Széchenyi Egyetem Menubar</h4>
-        <Menubar
-          items={[
-            {
-              label: "Kezdőlap",
-              icon: "pi pi-home",
-              command: () => console.log("Kezdőlap"),
-            },
-            {
-              label: "Oktatás",
-              icon: "pi pi-book",
-              items: [
-                { label: "Alapképzések", command: () => console.log("Alapképzések") },
-                { label: "Mesterképzések", command: () => console.log("Mesterképzések") },
-              ],
-            },
-            {
-              label: "Beállítások",
-              icon: "pi pi-cog",
-              items: [
-                { label: "Profil", command: () => console.log("Profil") },
-                { label: "Kijelentkezés", command: () => console.log("Kijelentkezés") },
-              ],
-            },
-          ]}
-        />
-      </div>
+    <div className="flex flex-col gap-3">
+      <Menubar model={menu} logoText="Széchenyi Egyetem" onItemClick={(item) => setSelected(item.label)} />
+      <p className="text-sm text-gray-500">Kiválasztva: {selected ?? "–"}</p>
     </div>
   );
 }

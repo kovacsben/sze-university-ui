@@ -1,98 +1,102 @@
-import React from 'react';
+import React from "react";
+import { classNames } from "primereact/utils";
+import { MenuBarButton, MenuItemButton, MenuSeparator } from "../MenuParts";
+import { MENU_BAR, MENU_PANEL, MENU_HEADING, runItem, useDismiss } from "../menuUtils";
 
-const Megamenu = ({
-  model = [],
-  items = [],
-  orientation = 'horizontal',
-  className = '',
-  onItemClick = null,
-}) => {
-  const [activeSubmenu, setActiveSubmenu] = React.useState(null);
-
-  const handleItemClick = (item) => {
-    if (onItemClick) {
-      onItemClick(item);
-    }
-    if (item.command) {
-      item.command();
-    }
-  };
+/**
+ * SZE Megamenu - többoszlopos lenyíló menü
+ *
+ * A menüsor a Menubar-ral azonos sáv, a felső szintű pontok és az oszlopok
+ * elemei SZE Button-ök (text variáns), az elválasztó SZE Divider - lásd
+ * ../menuUtils.js.
+ *
+ * Model (a PrimeReact MegaMenu-höz hasonló, egy szinttel egyszerűbb):
+ *   [{ label, icon, command?, items?: [            // felső szint
+ *       { label, items: [{ label, icon, command }] } // oszlop + elemei
+ *   ] }]
+ * Az oszlopelemek között `{ separator: true }` is állhat.
+ *
+ * Megnyitás kattintásra (billentyűzettel is elérhető). Ha már nyitva van egy
+ * panel, a többi felső pont fölé víve az egeret a panel átvált - ahogy az
+ * asztali menüsorok működnek. Kívülre kattintás vagy Esc bezárja.
+ *
+ * @param {Array}    model / items - a menü (az `items` a régi név, elsőbbséget élvez)
+ * @param {Function} onItemClick   - onItemClick(item) minden kiválasztott pontra
+ */
+const Megamenu = ({ model = [], items = [], className = "", onItemClick = null }) => {
+  const [active, setActive] = React.useState(null);
+  const rootRef = React.useRef(null);
+  const uid = React.useId();
 
   const menuItems = items.length > 0 ? items : model;
+  const close = () => setActive(null);
+  useDismiss(rootRef, active !== null, close);
+
+  const select = (item, e) => {
+    runItem(item, e, onItemClick);
+    close();
+  };
+
+  const activeItem = active !== null ? menuItems[active] : null;
 
   return (
-    <div className={`w-full ${className}`}>
-      {/* Main Menu Bar */}
-      <div className="flex items-center bg-gradient-to-r from-sze-primary to-sze-primary-700 text-white shadow-lg rounded-lg overflow-hidden">
-        {menuItems.map((mainItem, index) => (
-          <div
-            key={index}
-            className="relative group flex-1"
-            onMouseEnter={() => setActiveSubmenu(index)}
-            onMouseLeave={() => setActiveSubmenu(null)}
-          >
-            {/* Main Menu Item */}
-            <button
-              onClick={() => mainItem.command && handleItemClick(mainItem)}
-              className="w-full px-4 py-3 flex items-center gap-2 hover:bg-sze-primary-600 transition-colors duration-200 font-medium text-sm"
-            >
-              {mainItem.icon && <i className={mainItem.icon} />}
-              <span>{mainItem.label}</span>
-              {mainItem.items && mainItem.items.length > 0 && (
-                <i className="pi pi-chevron-down ml-auto text-xs group-hover:rotate-180 transition-transform duration-200" />
+    <nav ref={rootRef} className={classNames("relative w-full", className)}>
+      <ul className={classNames(MENU_BAR, "list-none m-0 flex-wrap")}>
+        {menuItems.map((item, i) => {
+          const hasPanel = item.items?.length > 0;
+          return (
+            <li key={item.label ?? i}>
+              <MenuBarButton
+                item={item}
+                hasPanel={hasPanel}
+                open={active === i}
+                aria-controls={hasPanel && active === i ? `${uid}-panel` : undefined}
+                onMouseEnter={() => active !== null && setActive(hasPanel ? i : null)}
+                onClick={(e) => (hasPanel ? setActive(active === i ? null : i) : select(item, e))}
+              />
+            </li>
+          );
+        })}
+      </ul>
+
+      {/* A panel a teljes sáv alatt nyílik, az oszlopok kitöltik a szélességét. */}
+      {activeItem && (
+        <div
+          id={`${uid}-panel`}
+          className={classNames(
+            MENU_PANEL,
+            "absolute left-0 right-0 top-full mt-2 p-3",
+            "grid gap-2 grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]"
+          )}
+        >
+          {activeItem.items.map((column, c) => (
+            <section key={column.label ?? c} aria-labelledby={column.label ? `${uid}-col-${c}` : undefined}>
+              {column.label && (
+                <h4 id={`${uid}-col-${c}`} className={MENU_HEADING}>
+                  {column.label}
+                </h4>
               )}
-            </button>
-
-            {/* Submenu */}
-            {mainItem.items && mainItem.items.length > 0 && (
-              <div
-                className={`absolute left-0 top-full bg-white text-gray-700 shadow-xl rounded-b-lg overflow-hidden transition-all duration-200 z-20 ${
-                  activeSubmenu === index
-                    ? 'opacity-100 visible'
-                    : 'opacity-0 invisible pointer-events-none'
-                }`}
-                style={{
-                  minWidth: `${mainItem.items.length * 250}px`,
-                }}
-              >
-                <div className="grid" style={{ gridTemplateColumns: `repeat(${mainItem.items.length}, 1fr)` }}>
-                  {mainItem.items.map((subCategory, subIndex) => (
-                    <div
-                      key={subIndex}
-                      className="p-4 border-r border-gray-200 last:border-r-0 hover:bg-sze-primary-50 transition-colors duration-200"
-                    >
-                      {/* Subcategory Header */}
-                      {subCategory.label && (
-                        <h4 className="font-semibold text-sze-primary text-sm mb-3 uppercase tracking-wide">
-                          {subCategory.label}
-                        </h4>
-                      )}
-
-                      {/* Subcategory Items */}
-                      {subCategory.items && subCategory.items.length > 0 && (
-                        <ul className="space-y-2">
-                          {subCategory.items.map((item, itemIndex) => (
-                            <li key={itemIndex}>
-                              <button
-                                onClick={() => handleItemClick(item)}
-                                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:text-sze-primary hover:bg-gray-100 rounded transition-colors duration-200 flex items-center gap-2"
-                              >
-                                {item.icon && <i className={item.icon} />}
-                                <span>{item.label}</span>
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
+              <ul className="list-none m-0 p-0 flex flex-col gap-0.5">
+                {(column.items || []).map((entry, j) =>
+                  entry.separator ? (
+                    <MenuSeparator key={`sep-${j}`} />
+                  ) : (
+                    <li key={entry.label ?? j}>
+                      {/* Az oszlopok keskenyek, a hosszú (pl. karnevek) feliratok törhetnek. */}
+                      <MenuItemButton
+                        item={entry}
+                        className="!whitespace-normal !h-auto min-h-10 py-2"
+                        onClick={(e) => select(entry, e)}
+                      />
+                    </li>
+                  )
+                )}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
+    </nav>
   );
 };
 

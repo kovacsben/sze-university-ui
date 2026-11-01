@@ -1,6 +1,16 @@
 import React from 'react';
 import { ScrollPanel as PrimeScrollPanel } from 'primereact/scrollpanel';
 
+/**
+ * SZE ScrollPanel - görgethető panel saját görgetősávval
+ *
+ * A görgetősáv (SZE-kék, csak hoverre jelenik meg) a PT-ből jön
+ * (theme/pt/scrollpanel.js). A belső térköz itt, a tartalom burkolóján van:
+ * a PrimeReact content elemének jobb és alsó belső margója a natív sáv
+ * elrejtésére kell, azt nem szabad felülírni.
+ *
+ * @param {string} height - a panel magassága (CSS érték), alapértelmezés: 300px
+ */
 const ScrollPanel = ({
   children = null,
   content = '',
@@ -9,18 +19,9 @@ const ScrollPanel = ({
   height = '300px',
 }) => {
   return (
-    <div className={`scroll-panel-wrapper ${className}`} style={style}>
-      <PrimeScrollPanel
-        style={{ width: '100%', height }}
-        className="bg-white border border-gray-200 rounded-lg"
-      >
-        {/* A belső térköz a PT `content` szekciójában van (theme/pt/scrollpanel.js),
-            hogy a görgethető terület a panel teljes magasságát elfoglalja. */}
-        <div className="text-gray-700">
-          {children || content}
-        </div>
-      </PrimeScrollPanel>
-    </div>
+    <PrimeScrollPanel style={{ width: '100%', height, ...style }} className={className}>
+      <div className="p-4 text-gray-700">{children || content}</div>
+    </PrimeScrollPanel>
   );
 };
 

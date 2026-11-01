@@ -10,10 +10,11 @@ import { Button as PButton } from "primereact/button";
  * 
  * @param {string} variant - Gomb típusa: "secondary", "outline", "text", "link"
  * @param {boolean} fullWidth - Ha true, a gomb 100% szélességű lesz
+ * @param {string} align - "center" (alapértelmezett) | "left" – a tartalom igazítása
  * @param {string} className - További CSS osztályok a gombhoz
  * @param {*} props - Összes egyéb PrimeReact Button prop (label, icon, onClick, stb.)
  */
-export default function Button({ variant, fullWidth, className, ...props }) {
+export default function Button({ variant, fullWidth, align = "center", className, ...props }) {
   // Egy üres objektum, amely tartalmazza a PrimeReact-specifikus prop-okat
   const mapped = {};
   
@@ -31,8 +32,12 @@ export default function Button({ variant, fullWidth, className, ...props }) {
   // Végső prop-ok: ha ikon-only, adunk label={null}, különben továbbadjuk a labelt
   const finalProps = { ...rest, icon, ...(isIconOnly ? { label: null } : { label }) };
 
-  // className kombinálása
-  const baseClass = (fullWidth ? "w-full " : "") + "flex items-center justify-center text-center " + (className || "");
+  // className kombinálása.
+  // align="left": balra igazított tartalom (pl. menüpontok, oldalsáv-navigáció
+  // fullWidth gombokkal). A PT (BUTTON_BASE) is ad justify-center-t, ami azonos
+  // specificitású lenne, ezért itt !important kell, hogy biztosan érvényesüljön.
+  const alignClass = align === "left" ? "!justify-start !text-left " : "justify-center text-center ";
+  const baseClass = (fullWidth ? "w-full " : "") + "flex items-center " + alignClass + (className || "");
 
   return <PButton {...mapped} {...finalProps} className={baseClass} />;
 }

@@ -1,6 +1,14 @@
 
 import { classNames } from "primereact/utils";
 import { RADIUS, SHADOW, DURATION, controlSize } from "../tokens";
+import { BUTTON_BASE, buttonVariantClasses } from "./button";
+
+/* Az időválasztó közös osztályai (lásd lent, timePicker) */
+const TIME_COLUMN = "flex flex-col items-center gap-1";
+const TIME_STEP_BUTTON = classNames(...BUTTON_BASE, RADIUS.full, "h-9 w-9", buttonVariantClasses({ text: true }));
+const TIME_VALUE =
+  `flex h-10 w-14 items-center justify-center ${RADIUS.xl} border border-black/15 bg-sze-third/20 ` +
+  "text-lg font-semibold text-sze-primary tabular-nums select-none";
 
 export const calendarPT = {
   /* A teljes mező konténer */
@@ -27,11 +35,15 @@ export const calendarPT = {
   },
 
   /* Az előugró panel (naptár) */
-  panel: { className: `bg-white border ${RADIUS["2xl"]} m-2 p-4 ${SHADOW.xl} z-50 w-auto` },
+  // A keret színe nélkül a border currentColor (fekete) lenne; a Dropdown panelével egyezik.
+  panel: { className: `bg-white border border-gray-100 ${RADIUS["2xl"]} m-2 p-4 ${SHADOW["2xl"]} z-50 w-auto` },
 
   /* Fejléc (hónap/év + navigáció) */
   header: { className: "flex items-center justify-center mb-2" },
-  title:  { className: "text-sze-primary font-semibold" },
+  title:  { className: "flex items-center gap-1 text-sze-primary font-semibold" },
+  /* A hónap és az év két külön gomb; térköz nélkül "November2026" lett belőlük. */
+  monthTitle: { className: `px-1.5 ${RADIUS.lg} hover:bg-sze-primary/10 transition-colors` },
+  yearTitle:  { className: `px-1.5 ${RADIUS.lg} hover:bg-sze-primary/10 transition-colors` },
   previousButton: {
     className:
       `${RADIUS["2xl"]} h-8 w-8 flex items-center justify-center hover:bg-sze-primary/10 text-sze-primary`,
@@ -82,26 +94,37 @@ export const calendarPT = {
       "p-2 m-2",
   },
 
-  /* (opcionális) időválasztó, ha showTime/showSeconds */
-  timePicker: { className: "mt-2 pt-2 border-t border-black/10 flex justify-center items-center gap-4" },
-  
-  /* Óra, perc, másodperc input mezők */
-  timePickerContainer: { className: "flex items-center justify-center gap-2" },
-  hour:   { 
-    className: `w-12 h-10 ${RADIUS.lg} border border-black/15 bg-white text-center font-semibold text-sze-primary focus:outline-none focus:ring-2 focus:ring-sze-primary`
-  },
-  minute: { 
-    className: `w-12 h-10 ${RADIUS.lg} border border-black/15 bg-white text-center font-semibold text-sze-primary focus:outline-none focus:ring-2 focus:ring-sze-primary`
-  },
-  second: { 
-    className: `w-12 h-10 ${RADIUS.lg} border border-black/15 bg-white text-center font-semibold text-sze-primary focus:outline-none focus:ring-2 focus:ring-sze-primary`
-  },
-  
-  /* Szeparátor (: jelek az idő között) */
-  timePickerSeparator: { className: "text-sze-primary font-bold" },
-  
-  /* Az időválasztó gombok (+/-) */
-  timePickerButton: { 
-    className: `${RADIUS.lg} h-8 w-8 flex items-center justify-center text-sze-primary hover:bg-sze-primary/10 border border-black/10 hover:border-sze-primary/30 transition cursor-pointer`
-  },
+  /*
+   * Időválasztó (showTime / timeOnly)
+   *
+   * Szerkezet: timePicker > hourPicker | separatorContainer | minutePicker ...,
+   * ahol egy *Picker = incrementButton + érték <span> + decrementButton.
+   * Unstyled módban ezek egymás mellé, sorba kerülnének ("^19v"), ezért
+   * itt oszlopba rendezzük őket.
+   *
+   * A kinézet a SZE TimePicker léptetőivel azonos: a nyilak a Button `text`
+   * variánsát kapják (BUTTON_BASE + buttonVariantClasses, mint a
+   * SelectButton), az értékdoboz pedig az InputText xl-es lekerekítésű,
+   * h-10-es mezőjét követi.
+   */
+  timePicker: { className: "mt-3 pt-3 border-t border-black/10 flex items-center justify-center gap-2" },
+
+  hourPicker:   { className: TIME_COLUMN },
+  minutePicker: { className: TIME_COLUMN },
+  secondPicker: { className: TIME_COLUMN },
+  ampmPicker:   { className: TIME_COLUMN },
+
+  incrementButton: { className: TIME_STEP_BUTTON },
+  decrementButton: { className: TIME_STEP_BUTTON },
+  incrementIcon: { className: "w-3.5 h-3.5" },
+  decrementIcon: { className: "w-3.5 h-3.5" },
+
+  hour:   { className: TIME_VALUE },
+  minute: { className: TIME_VALUE },
+  second: { className: TIME_VALUE },
+  ampm:   { className: TIME_VALUE },
+
+  /* A ":" elválasztó, az értékdobozok magasságában */
+  separatorContainer: { className: "flex h-10 items-center" },
+  separator: { className: "text-lg font-semibold text-sze-primary" },
 };
