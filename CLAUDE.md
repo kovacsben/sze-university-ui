@@ -273,7 +273,7 @@ A PT oszlop a `theme/pt/` alatti fájlt jelöli (ha van és érvényesül).
 | Dialog | W | Dialog | dialog.js | `radius`; a `root` a doboz (háttér, ív, árnyék), a fejléc/lábléc szegély nélkül, a bezáró gomb a Button text variánsa |
 | ConfirmDialog | S | – | – | saját modális ablak háttérrel, `severity` (info/success/warning/danger), SZE Button-ök |
 | ConfirmPopUp | S | – | – | gomb melletti kis megerősítő buborék, `position` (top/bottom/left/right) |
-| Toast | B | Toast | toast.js | `forwardRef`, a hívó `ref.current.show(...)`-val használja |
+| Toast | W | Toast | toast.js | `forwardRef`, a hívó `ref.current.show(...)`-val használja; minden propot továbbad (`position`, `appendTo` stb.); a súlyosság színes bal szegélyt és ikont ad |
 | Tooltip | B | Tooltip | tooltip.js | `React.useId()`-vel generált célpont |
 | Message | S | – | (message.js nem érvényesül) | `severity` info/success/warning/error, bezárható |
 | Messages | B | Messages | message.js (`messages` kulcs) | helyi lista + „Összes törlése” gomb |
@@ -473,8 +473,8 @@ Ezek a kód átnézésekor derültek ki. Nem lettek javítva; dokumentáláskor 
 - ~~`dialog.js` mask: hiányzó szóköz (`p-4bg-black/40`)~~ – javítva a Dialog PT átírásakor.
 - ~~Kis- és nagybetű-eltérés az importútvonalakban~~ (`./FieldSet`, `./Sidebar`) – javítva (73c3aed).
 - ~~A `TailwindDemo` kétszer renderelődött~~ – javítva az App.jsx átírásakor.
-- **Toast pozicionálás:** a `toast.js` PT nem ad `fixed` pozíciót a gyökérnek, és a wrapper nem
-  engedi az `appendTo`-t, így unstyled módban a toast a `body` végére, a folyásba kerül.
+- ~~Toast megjelenés~~ – javítva: a `toast.js` PT a PrimeReact valódi szekcióneveit használja (szélesség,
+  elrendezés, súlyossági színek, animáció); a `fixed` pozíciót a PrimeReact inline stílusa adja.
 - **Élő szerkesztő:** a CodeMirror `.cm-scroller` eleme axe `scrollable-region-focusable`
   jelzést kap; minden újrafordítás új komponenstípust ad, ezért szerkesztéskor a példa állapota
   alaphelyzetbe áll; a futási hibák sorszáma V8-ra (Chrome, Edge) kalibrált.
@@ -483,7 +483,7 @@ Ezek a kód átnézésekor derültek ki. Nem lettek javítva; dokumentáláskor 
 - **Következetlen színhasználat:** a Chip, a Message és a ConfirmDialog Tailwind alapszíneket
   (`green-*`, `yellow-*`, `red-*`) használ a `success`/`warning`/`danger` tokenek helyett.
 - **API-eltérések:** a TriStateCheckbox és a MultiStateCheckbox `onChange`-e értéket ad, a
-  többi komponensé eseményobjektumot. A Toast `onRemove`-ban `console.log` maradt.
+  többi komponensé eseményobjektumot.
 - **Maradványfájlok:** üres `components/Upload/` mappa; a `README.md` a Vite-sablon
   alapszövege; az `index.html` címe „Vite + React” (`lang="en"`); a `src/App.css` nincs
   használatban; a `public/copy.html` nem kapcsolódik a projekthez; a `save.txt` jegyzet.

@@ -1,21 +1,10 @@
 import React from 'react';
 import { Toast as PrimeToast } from 'primereact/toast';
 
-const Toast = ({
-  ref = null,
-  position = 'top-right',
-  className = '',
-  style = {},
-}) => {
-  return (
-    <div className={`toast-wrapper ${className}`} style={style}>
-      <PrimeToast
-        ref={ref}
-        position={position}
-        onRemove={(e) => console.log('Toast removed')}
-      />
-    </div>
-  );
-};
+// Az üzenetek portálon át a body-ba kerülnek, ezért nem kell burkoló elem.
+// A `position`, `className`, `style`, `appendTo`, `onRemove` stb. változatlanul továbbmegy.
+const Toast = React.forwardRef((props, ref) => <PrimeToast ref={ref} {...props} />);
 
-export default React.forwardRef((props, ref) => <Toast {...props} ref={ref} />);
+Toast.displayName = 'Toast';
+
+export default Toast;
